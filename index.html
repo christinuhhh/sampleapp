@@ -69,7 +69,7 @@
       <div class="flex items-start justify-between">
         <div>
           <p class="text-[14px] text-slate-500 font-normal">Good afternoon,</p>
-          <h1 class="text-[22px] font-bold text-[#232B2E] tracking-tight leading-tight mt-0.5">Christine</h1>
+          <h1 class="text-[22px] font-bold text-[#232B2E] tracking-tight leading-tight mt-0.5">Bea</h1>
         </div>
         <button onclick="triggerDecoy('Inbox & Advisories')" class="p-2 text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors" aria-label="Messages">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
@@ -143,8 +143,8 @@
           <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-[#C83232]">1 Active Loan</span>
         </div>
 
-        <!-- Active Loan Summary Card -->
-        <div onclick="openLoanTracker('journey', 'Personal Multipurpose Loan')" class="bpi-card p-4 cursor-pointer border-l-4 border-l-[#C83232] active:scale-[0.99] transition-transform">
+        <!-- Active Loan Summary Card (Full Access: Journey, Budget, Details, Simulator) -->
+        <div onclick="openLoanTracker('journey', 'Personal Multipurpose Loan', 'accounts', false)" class="bpi-card p-4 cursor-pointer border-l-4 border-l-[#C83232] active:scale-[0.99] transition-transform">
           <div class="flex items-start justify-between">
             <div>
               <p class="text-[13px] font-bold uppercase tracking-wide text-[#232B2E]">MULTIPURPOSE LOAN</p>
@@ -178,7 +178,7 @@
             </svg>
           </div>
           <p class="text-[15px] font-bold text-[#232B2E]">Looking for another loan?</p>
-          <button onclick="openLoanTracker('simulator', 'Personal Multipurpose Loan')" class="text-[13px] font-semibold text-[#148287] underline underline-offset-4">
+          <button onclick="openLoanTracker('simulator', 'Personal Multipurpose Loan', 'accounts', false)" class="text-[13px] font-semibold text-[#148287] underline underline-offset-4">
             Apply for a loan
           </button>
         </div>
@@ -274,7 +274,7 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- BPI SCREEN 3: PRODUCTS (Housing & Auto Loan -> Simulator + Apply)   -->
+    <!-- BPI SCREEN 3: PRODUCTS (Housing & Auto Loan -> Simulator-Only Mode) -->
     <!-- =================================================================== -->
     <section id="bpi-screen-products" class="hidden pt-6 px-5 space-y-4">
       <div class="pb-1">
@@ -310,8 +310,8 @@
           <p class="text-[15px] font-bold text-[#232B2E]">Apply for a credit card</p>
         </div>
 
-        <!-- ACTIVE LOAN BUTTON 1: APPLY FOR A HOUSING LOAN -> OPENS SIMULATOR -->
-        <div onclick="openLoanTracker('simulator', 'Housing Loan')" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
+        <!-- ACTIVE LOAN BUTTON 1: APPLY FOR A HOUSING LOAN -> SIMULATOR ONLY + BACK TO PRODUCTS -->
+        <div onclick="openLoanTracker('simulator', 'Housing Loan', 'products', true)" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
           <div class="flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-rose-50 text-[#C83232] flex items-center justify-center shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" /></svg>
@@ -324,8 +324,8 @@
           <span class="text-slate-400 font-bold">&rsaquo;</span>
         </div>
 
-        <!-- ACTIVE LOAN BUTTON 2: APPLY FOR AN AUTO LOAN -> OPENS SIMULATOR -->
-        <div onclick="openLoanTracker('simulator', 'Auto Loan')" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
+        <!-- ACTIVE LOAN BUTTON 2: APPLY FOR AN AUTO LOAN -> SIMULATOR ONLY + BACK TO PRODUCTS -->
+        <div onclick="openLoanTracker('simulator', 'Auto Loan', 'products', true)" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
           <div class="flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 11l1.5-4.5h11L19 11M4 11h16v6H4v-6zm3 6v2m10-2v2" /></svg>
@@ -481,12 +481,12 @@
     <!-- =================================================================== -->
     <div id="loan-journey-overlay" class="fixed inset-0 z-50 hidden flex flex-col bg-[#F7F8FA]" style="max-width:430px;margin:0 auto;">
       
-      <!-- Top Header ("Back to Home") -->
+      <!-- Top Header ("Back to Home" or "Back to Products") -->
       <header class="shrink-0 bg-white border-b border-slate-200/80 px-5 pt-4 pb-4 z-20">
         <div class="flex items-center justify-between mb-2.5">
           <button onclick="closeLoanTracker()" class="inline-flex items-center gap-1.5 text-[#148287] text-[13px] font-bold hover:opacity-80 transition-opacity">
             <span>&larr;</span>
-            <span>Back to Home</span>
+            <span id="tracker-back-label">Back to Home</span>
           </button>
           <div id="header-risk-pill" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -497,15 +497,15 @@
         <div class="flex items-end justify-between">
           <div>
             <p id="tracker-context-label" class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">BPI Loan Portal</p>
-            <h1 class="text-[20px] font-bold text-[#232B2E] tracking-tight mt-0.5">Loan Journey &amp; Budget</h1>
+            <h1 id="tracker-main-title" class="text-[20px] font-bold text-[#232B2E] tracking-tight mt-0.5">Loan Journey &amp; Budget</h1>
           </div>
-          <div class="text-right">
+          <div id="hdr-existing-loan-box" class="text-right">
             <p class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">LN-2025-884120</p>
             <p id="hdr-outstanding" class="text-[16px] font-extrabold text-[#232B2E]">PHP 144,000.00</p>
           </div>
         </div>
 
-        <!-- Past-Due Alert Strip -->
+        <!-- Past-Due Alert Strip (Hidden in Simulator-Only Mode) -->
         <div id="hdr-pastdue-strip" class="hidden mt-3 bg-rose-50 border border-rose-200 rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-[#C83232] animate-ping"></span>
@@ -518,10 +518,10 @@
         </div>
       </header>
 
-      <!-- SCROLLABLE BODY AREA (Scrolls cleanly without blocking bottom bar) -->
+      <!-- SCROLLABLE BODY AREA -->
       <div id="tracker-scroll-area" class="flex-1 overflow-y-auto px-5 pt-4 pb-8 space-y-4">
 
-        <!-- SUB-TAB 1: JOURNEY -->
+        <!-- SUB-TAB 1: JOURNEY (Accessible from Home -> Loans only) -->
         <main id="trk-tab-journey" class="space-y-4">
           <div class="bpi-card p-5 relative overflow-hidden">
             <div class="flex items-center justify-between gap-3.5">
@@ -597,7 +597,7 @@
             </div>
           </div>
 
-          <!-- Trophy Shelf (BPI Pastel Accents: Rose, Emerald, Yellow, Sky) -->
+          <!-- Trophy Shelf -->
           <div class="bpi-card p-4">
             <div class="flex items-center justify-between mb-2.5">
               <h3 class="text-xs font-bold uppercase tracking-wider text-[#232B2E]">Milestone Trophies</h3>
@@ -619,7 +619,7 @@
           </div>
         </main>
 
-        <!-- SUB-TAB 2: BUDGET -->
+        <!-- SUB-TAB 2: BUDGET (Accessible from Home -> Loans only) -->
         <main id="trk-tab-budget" class="hidden space-y-4">
           <div id="risk-banner" class="bpi-card p-4 border-l-4 border-l-emerald-600">
             <h3 id="risk-title" class="text-xs font-bold uppercase tracking-wider text-emerald-700">Healthy Borrowing Capacity</h3>
@@ -725,7 +725,7 @@
           </div>
         </main>
 
-        <!-- SUB-TAB 3: DETAILS & 3% LATE FEE BREAKDOWN -->
+        <!-- SUB-TAB 3: DETAILS & 3% LATE FEE BREAKDOWN (Accessible from Home -> Loans only) -->
         <main id="trk-tab-details" class="hidden space-y-4">
           <div class="bpi-card p-5 space-y-3">
             <div class="flex items-center justify-between">
@@ -928,7 +928,7 @@
               <span>&nearr;</span>
             </button>
 
-            <label class="flex items-center justify-between p-3 rounded-xl bg-[#F7F8FA] border border-slate-200/80 cursor-pointer">
+            <label id="sim-sync-budget-wrap" class="flex items-center justify-between p-3 rounded-xl bg-[#F7F8FA] border border-slate-200/80 cursor-pointer">
               <span class="text-xs font-bold text-[#232B2E]">Sync simulated loan into Budget &amp; Risk Tab</span>
               <input id="sim-include-toggle" type="checkbox" checked onchange="recalcBudget()" class="w-4 h-4 accent-[#C83232]" />
             </label>
@@ -937,8 +937,8 @@
 
       </div>
 
-      <!-- STICKY BOTTOM TAB BAR (Locked at Bottom, Never Floats in Middle) -->
-      <nav class="shrink-0 bg-white border-t border-slate-200/80 px-3 pt-2.5 pb-3 flex justify-around items-center z-30 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+      <!-- STICKY BOTTOM TAB BAR (Hidden when opened from Products -> Housing/Auto Loan) -->
+      <nav id="tracker-bottom-nav" class="shrink-0 bg-white border-t border-slate-200/80 px-3 pt-2.5 pb-3 flex justify-around items-center z-30 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
         <button onclick="switchTrackerTab('journey')" id="trk-nav-journey" class="trk-nav flex-1 flex flex-col items-center gap-1 text-[#C83232] font-bold text-[11px]">
           <span>Journey</span>
           <span class="trk-ind w-10 h-0.5 bg-[#C83232] rounded-full"></span>
@@ -1070,22 +1070,36 @@
     let daysLate = 0;
     let simTermMonths = 12;
     let hasCoBorrower = false;
+    let trackerReturnTab = 'accounts';
+    let isSimulatorOnlyMode = false;
 
     const php = (n) => '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    function openLoanTracker(initialTab = 'journey', loanContext = 'Personal Multipurpose Loan') {
+    function openLoanTracker(initialTab = 'journey', loanContext = 'Personal Multipurpose Loan', returnTab = 'accounts', simulatorOnly = false) {
+      trackerReturnTab = returnTab;
+      isSimulatorOnlyMode = simulatorOnly;
+
+      document.getElementById('tracker-back-label').textContent = returnTab === 'products' ? 'Back to Products' : 'Back to Home';
       document.getElementById('tracker-context-label').textContent = `BPI ${loanContext}`;
+      document.getElementById('tracker-main-title').textContent = simulatorOnly ? `${loanContext} Simulator` : 'Loan Journey & Budget';
+
+      // Hide Journey/Budget/Details tabs and bottom tab bar when launched from Products -> Housing/Auto Loan
+      document.getElementById('tracker-bottom-nav').classList.toggle('hidden', simulatorOnly);
+      document.getElementById('hdr-existing-loan-box').classList.toggle('hidden', simulatorOnly);
+      document.getElementById('sim-sync-budget-wrap').classList.toggle('hidden', simulatorOnly);
+
       const typeSelect = document.getElementById('sim-loan-type');
       if (typeSelect) typeSelect.value = loanContext;
+
       document.getElementById('loan-journey-overlay').classList.remove('hidden');
-      switchTrackerTab(initialTab);
+      switchTrackerTab(simulatorOnly ? 'simulator' : initialTab);
       renderJourney();
       recalcBudget();
     }
 
     function closeLoanTracker() {
       document.getElementById('loan-journey-overlay').classList.add('hidden');
-      switchBpiTab('accounts'); // Returns directly to Home / Accounts
+      switchBpiTab(trackerReturnTab); // Returns to Products if opened from Products, or Home (Accounts) if opened from Loans
       syncBpiLoanCardPreview();
     }
 
@@ -1139,6 +1153,9 @@
     }
 
     function switchTrackerTab(tab) {
+      if (isSimulatorOnlyMode && tab !== 'simulator') {
+        tab = 'simulator';
+      }
       ['journey', 'budget', 'details', 'simulator'].forEach(t => {
         document.getElementById('trk-tab-' + t).classList.toggle('hidden', t !== tab);
         const btn = document.getElementById('trk-nav-' + t);
@@ -1329,7 +1346,7 @@
     }
 
     function updateLatePaymentDisplay() {
-      const isPastDue = daysLate > 0;
+      const isPastDue = daysLate > 0 && !isSimulatorOnlyMode;
       const baseDue = SEMI_INSTALLMENT + INSURANCE_PREMIUM;
       const lateCharge = SEMI_INSTALLMENT * LATE_FEE_RATE;
       const totalAfterDueDate = baseDue + lateCharge;
