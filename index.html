@@ -87,6 +87,38 @@
         </div>
       </div>
 
+      <!-- HOME SCREEN PAST-DUE BANNER (Visible whenever daysLate > 0) -->
+      <div id="home-pastdue-banner" class="hidden rounded-2xl bg-rose-50 border border-rose-200 p-3.5 shadow-2xs space-y-2.5">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-start gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#C83232] animate-ping mt-1 shrink-0"></span>
+            <div>
+              <p class="text-xs font-extrabold text-[#C83232]">
+                Loan Past Due: <span id="home-late-days">0</span> <span id="home-late-days-unit">Days</span> Past Due
+              </p>
+              <p class="text-[11px] text-slate-700 mt-0.5">
+                Motorcycle Loan (LN-2025-884120) &bull; +<span id="home-late-pct">3</span>% Late Charge &bull; Due: <strong id="home-after-due-amt" class="text-[#232B2E]">PHP 5,400.00</strong>
+              </p>
+            </div>
+          </div>
+          <button onclick="openLoanTracker('journey', 'Motorcycle Loan', 'accounts', false)" class="text-[11px] font-bold text-[#148287] underline shrink-0">
+            View
+          </button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-rose-200/70">
+          <button onclick="openCatchUpModal()" class="py-1.5 px-2 rounded-lg bg-[#C83232] text-white font-bold text-[10px]">
+            Instant Catch-Up
+          </button>
+          <button onclick="openSupportSheet('collections')" class="py-1.5 px-2 rounded-lg bg-white border border-rose-200 text-[#232B2E] font-bold text-[10px]">
+            Ask Officer
+          </button>
+          <button onclick="openReliefSheet()" class="py-1.5 px-2 rounded-lg bg-[#2E3B3E] text-white font-bold text-[10px]">
+            Flexible Plan
+          </button>
+        </div>
+      </div>
+
       <!-- Daily Updates Banner -->
       <div class="flex items-center gap-3.5">
         <div class="shrink-0 w-[104px]">
@@ -534,7 +566,7 @@
     <!-- =================================================================== -->
     <div id="loan-journey-overlay" class="fixed inset-0 z-50 hidden flex flex-col bg-[#F7F8FA]" style="max-width:430px;margin:0 auto;">
       
-      <!-- Top Header ("Back to Home" or "Back to Products" + Help / Contact BPI Button) -->
+      <!-- Top Header ("Back to Home" or "Back to Products" + Help / Contact BPI Button + Persistent Past-Due Banner) -->
       <header class="shrink-0 bg-white border-b border-slate-200/80 px-5 pt-4 pb-4 z-20">
         <div class="flex items-center justify-between mb-2.5">
           <button onclick="closeLoanTracker()" class="inline-flex items-center gap-1.5 text-[#148287] text-[13px] font-bold hover:opacity-80 transition-opacity">
@@ -569,17 +601,19 @@
           </div>
         </div>
 
-        <!-- Past-Due Action Strip with Dynamic 3% / 6% Rate, Instant Catch-Up & Relief Access -->
+        <!-- LOAN JOURNEY PERSISTENT PAST-DUE BANNER (Visible across Journey, Budget, Details, Simulator when daysLate > 0) -->
         <div id="hdr-pastdue-strip" class="hidden mt-3 bg-rose-50 border border-rose-200 rounded-xl p-3 space-y-2.5">
           <div class="flex items-center justify-between text-xs">
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-[#C83232] animate-ping shrink-0"></span>
               <div>
-                <p class="font-bold text-[#C83232]">Past Due (<span id="hdr-late-days">0</span>d) &bull; +<span id="hdr-late-pct">3</span>% Charge (<span id="hdr-late-months">1</span> mo.)</p>
+                <p class="font-extrabold text-[#C83232]">
+                  Past Due: <span id="hdr-late-days">0</span> <span id="hdr-late-days-unit">Days</span> Past Due &bull; +<span id="hdr-late-pct">3</span>% Charge (<span id="hdr-late-months">1</span> mo.)
+                </p>
                 <p class="text-[11px] text-slate-700">Total Due: <strong id="hdr-after-due-amt" class="text-[#232B2E]">PHP 5,400.00</strong></p>
               </div>
             </div>
-            <button onclick="openCatchUpModal()" class="px-3 py-1.5 rounded-lg bg-[#C83232] text-white font-bold text-[11px] shadow-2xs">
+            <button onclick="openCatchUpModal()" class="px-3 py-1.5 rounded-lg bg-[#C83232] text-white font-bold text-[11px] shadow-2xs shrink-0">
               Instant Catch-Up
             </button>
           </div>
@@ -1906,11 +1940,11 @@
     }
 
     function updateLatePaymentDisplay() {
-      const isPastDue = daysLate > 0 && !isSimulatorOnlyMode;
+      const hasDaysLate = daysLate > 0;
       const baseDue = SEMI_INSTALLMENT + INSURANCE_PREMIUM;
       const activeLate = getLateFeeDetails(daysLate);
-      const displayRatePct = isPastDue ? activeLate.ratePct : 3;
-      const displayPenaltyAmt = isPastDue ? activeLate.feeAmount : (SEMI_INSTALLMENT * 0.03);
+      const displayRatePct = hasDaysLate ? activeLate.ratePct : 3;
+      const displayPenaltyAmt = hasDaysLate ? activeLate.feeAmount : (SEMI_INSTALLMENT * 0.03);
       const totalAfterDueDate = Math.max(0, (baseDue + displayPenaltyAmt) - partialCureCredit);
       const activePayable = getCurrentDueBalance();
 
@@ -1929,8 +1963,12 @@
       const afterDueNote = document.getElementById('det-after-due-note');
       const budgetTag = document.getElementById('budget-late-status-tag');
       const hdrStrip = document.getElementById('hdr-pastdue-strip');
+      const homeBanner = document.getElementById('home-pastdue-banner');
 
-      if (isPastDue) {
+      if (hasDaysLate) {
+        const dayUnit = daysLate === 1 ? 'Day' : 'Days';
+        const formattedDue = `PHP ${Number(totalAfterDueDate).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+
         lateFeeEl.textContent = `+${php(activeLate.feeAmount)} (${activeLate.months} mo. @ 3%/mo = ${activeLate.ratePct}%)`;
         lateFeeEl.className = 'font-bold text-[#C83232]';
         afterDueBox.className = 'mt-2 p-3.5 rounded-xl bg-rose-50 border border-rose-200 space-y-1.5';
@@ -1938,11 +1976,20 @@
         budgetTag.textContent = `Past Due (${daysLate}d) • +${activeLate.ratePct}% (${php(activeLate.feeAmount)})`;
         budgetTag.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-[#C83232]';
 
+        // Update Loan Journey Sticky Header Banner (visible in Journey, Budget, Details, and Simulator)
         document.getElementById('hdr-late-days').textContent = daysLate;
+        document.getElementById('hdr-late-days-unit').textContent = dayUnit;
         document.getElementById('hdr-late-pct').textContent = activeLate.ratePct;
         document.getElementById('hdr-late-months').textContent = activeLate.months;
-        document.getElementById('hdr-after-due-amt').textContent = `PHP ${Number(totalAfterDueDate).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+        document.getElementById('hdr-after-due-amt').textContent = formattedDue;
         hdrStrip.classList.remove('hidden');
+
+        // Update App Home Screen Past-Due Banner
+        document.getElementById('home-late-days').textContent = daysLate;
+        document.getElementById('home-late-days-unit').textContent = dayUnit;
+        document.getElementById('home-late-pct').textContent = activeLate.ratePct;
+        document.getElementById('home-after-due-amt').textContent = formattedDue;
+        homeBanner.classList.remove('hidden');
       } else {
         lateFeeEl.textContent = `${php(0)} (₱150.00 if 1–30d past due)`;
         lateFeeEl.className = 'font-bold text-slate-400';
@@ -1951,6 +1998,7 @@
         budgetTag.textContent = 'On Time (₱0 Penalty)';
         budgetTag.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700';
         hdrStrip.classList.add('hidden');
+        homeBanner.classList.add('hidden');
       }
       syncBpiLoanCardPreview();
     }
