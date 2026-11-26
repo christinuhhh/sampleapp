@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Loan Journey & Budget Tracker</title>
+  <title>BPI Mobile — Accounts & Loan Journey</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,6 +14,13 @@
         extend: {
           fontFamily: { sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'] },
           colors: {
+            bpi: {
+              red: '#C83232',
+              dark: '#9E1B1B',
+              charcoal: '#2E3B3E',
+              teal: '#148287',
+              bg: '#F7F8FA'
+            },
             crimson: { 600: '#B11116', 700: '#920C10', 800: '#74070B', 900: '#5A0407' },
             cream: { 50: '#FDFBF7', 100: '#FAF6EE', 200: '#F2E9D8' },
             gold: { 300: '#F3DC8B', 400: '#E5C358', 500: '#D4AF37', 600: '#B89225' }
@@ -23,478 +30,1093 @@
     };
   </script>
   <style>
-    body { background-color: #1c1917; margin: 0; -webkit-tap-highlight-color: transparent; }
-    .phone-frame { max-width: 430px; min-height: 100vh; margin: 0 auto; background: #FAF6EE; position: relative; padding-bottom: 88px; box-shadow: 0 25px 60px rgba(0,0,0,0.55); }
+    body { background-color: #18181b; margin: 0; -webkit-tap-highlight-color: transparent; }
+    .phone-frame {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: #F7F8FA;
+      position: relative;
+      padding-bottom: 92px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+    }
+    .bpi-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.045);
+      border: 1px solid rgba(226, 232, 240, 0.65);
+    }
     .crimson-grad { background: linear-gradient(135deg, #B11116 0%, #74070B 55%, #5A0407 100%); }
-    .gold-grad { background: linear-gradient(135deg, #F3DC8B 0%, #D4AF37 50%, #B89225 100%); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes popIn { 0% { transform: scale(0.92); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    .animate-pop { animation: popIn 0.25s ease-out forwards; }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .animate-sheet { animation: slideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
 </head>
-<body class="font-sans text-stone-800 antialiased">
+<body class="font-sans text-[#232B2E] antialiased">
 
   <div class="phone-frame overflow-x-hidden">
     <!-- Confetti Canvas -->
-    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50" style="max-width:430px;margin:0 auto;"></canvas>
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-[70]" style="max-width:430px;margin:0 auto;"></canvas>
 
-    <!-- Top App Header -->
-    <header class="crimson-grad text-white px-5 pt-5 pb-7 rounded-b-3xl shadow-lg relative overflow-hidden">
-      <div class="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-gold-500/10 pointer-events-none"></div>
-      <div class="flex items-center justify-between relative z-10">
+    <!-- Decoy Toast Banner -->
+    <div id="decoy-toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[60] hidden max-w-[380px] w-[90%] bg-[#2E3B3E] text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg border border-white/10 flex items-center gap-2.5">
+      <span class="w-2 h-2 rounded-full bg-[#C83232] shrink-0"></span>
+      <span id="decoy-toast-msg">This feature is a decoy. Tap Loans or Apply for a Loan to open your Loan Journey.</span>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- BPI SCREEN 1: ACCOUNTS (DEPOSITS / INVESTMENTS / CARDS / LOANS)     -->
+    <!-- =================================================================== -->
+    <section id="bpi-screen-accounts" class="pt-6 px-5 space-y-5">
+      <!-- Greeting Header -->
+      <div class="flex items-start justify-between">
         <div>
-          <p class="text-[11px] uppercase tracking-widest text-gold-300 font-bold">Client Loan Portal</p>
-          <h1 class="text-lg font-extrabold tracking-tight mt-0.5">Payoff Journey & Budget</h1>
+          <p class="text-[14px] text-slate-500 font-normal">Good afternoon,</p>
+          <h1 class="text-[22px] font-bold text-[#232B2E] tracking-tight leading-tight mt-0.5">Christine</h1>
         </div>
-        <div id="header-risk-pill" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Low Risk</span>
+        <button onclick="triggerDecoy('Inbox & Advisories')" class="p-2 text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors" aria-label="Messages">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M3 7l9 6 9-6" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Daily Updates Banner -->
+      <div class="flex items-center gap-3.5">
+        <div class="shrink-0 w-[104px]">
+          <p class="text-[15px] font-bold text-[#232B2E] leading-snug">Your daily updates</p>
+          <button onclick="triggerDecoy('View all updates')" class="text-[13px] font-semibold text-[#148287] underline underline-offset-2 mt-1">View all</button>
+        </div>
+        <div onclick="triggerDecoy('Advisory details')" class="bpi-card flex-1 p-3.5 cursor-pointer relative overflow-hidden">
+          <span class="inline-block px-2 py-0.5 rounded-md bg-rose-50 text-[#C83232] text-[10px] font-bold">New</span>
+          <p class="text-[13px] font-bold text-[#232B2E] leading-snug mt-1.5">Advisory: Updated Online Banking Terms &amp; Conditions</p>
+          <p class="text-[11px] text-slate-500 mt-1">Review changes here</p>
         </div>
       </div>
 
-      <!-- Account Strip -->
-      <div class="mt-4 bg-black/25 backdrop-blur-xs rounded-2xl p-3.5 border border-white/10 flex items-center justify-between">
-        <div>
-          <p class="text-[10px] uppercase tracking-wider text-cream-200/80 font-semibold">Active Loan Account</p>
-          <p id="hdr-acct-num" class="text-xs font-mono font-bold text-gold-300 mt-0.5">LN-2025-884120</p>
-        </div>
-        <div class="text-right">
-          <p class="text-[10px] uppercase tracking-wider text-cream-200/80 font-semibold">Outstanding Balance</p>
-          <p id="hdr-outstanding" class="text-base font-extrabold text-white mt-0.5">₱144,000.00</p>
+      <!-- Eye Toggle + Horizontal Category Pills -->
+      <div class="flex items-center gap-2.5 pt-1">
+        <button onclick="toggleBalances()" id="btn-eye-toggle" class="w-9 h-9 rounded-full bg-slate-200/75 flex items-center justify-center text-slate-700 shrink-0" aria-label="Toggle balances">
+          <svg id="icon-eye" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </button>
+        <div class="h-6 w-px bg-slate-300 shrink-0"></div>
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+          <button onclick="switchAccountPill('deposits')" id="pill-deposits" class="acct-pill px-4 py-2 rounded-full text-[13px] font-semibold bg-[#2E3B3E] text-white shrink-0 transition-all">Deposits</button>
+          <button onclick="switchAccountPill('investments')" id="pill-investments" class="acct-pill px-4 py-2 rounded-full text-[13px] font-medium bg-[#E9ECEF] text-[#232B2E] shrink-0 transition-all">Investments</button>
+          <button onclick="switchAccountPill('cards')" id="pill-cards" class="acct-pill px-4 py-2 rounded-full text-[13px] font-medium bg-[#E9ECEF] text-[#232B2E] shrink-0 transition-all">Cards</button>
+          <button onclick="switchAccountPill('loans')" id="pill-loans" class="acct-pill px-4 py-2 rounded-full text-[13px] font-semibold bg-[#E9ECEF] text-[#232B2E] shrink-0 transition-all flex items-center gap-1.5">
+            <span>Loans</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#C83232]"></span>
+          </button>
+          <button onclick="switchAccountPill('track')" id="pill-track" class="acct-pill px-4 py-2 rounded-full text-[13px] font-medium bg-[#E9ECEF] text-[#232B2E] shrink-0 transition-all">Track &amp; Plan</button>
         </div>
       </div>
 
-      <!-- Past-Due Alert Strip (Appears automatically when past due) -->
-      <div id="hdr-pastdue-strip" class="hidden mt-3 bg-rose-950/90 border border-rose-400/50 rounded-2xl px-3.5 py-2.5 flex items-center justify-between text-xs animate-pop">
-        <div class="flex items-center gap-2">
-          <span>🚨</span>
-          <div>
-            <p class="font-extrabold text-rose-200">Past Due (<span id="hdr-late-days">0</span>d) &bull; +3% Charge</p>
-            <p class="text-[11px] text-rose-100/90">Due After Cutoff: <strong id="hdr-after-due-amt" class="text-gold-300">₱5,400.00</strong></p>
+      <!-- SUB-VIEW A: DEPOSITS (Matches Screenshot 4) -->
+      <div id="acct-sub-deposits" class="space-y-3.5">
+        <h2 class="text-[17px] font-bold text-[#232B2E]">Deposits</h2>
+
+        <div onclick="triggerDecoy('Payroll Account Transactions')" class="bpi-card p-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <p class="text-[13px] font-bold uppercase tracking-wide text-[#232B2E]">PAYROLL ACCOUNT</p>
+          <p class="text-[13px] text-slate-500 mt-0.5">3729745668</p>
+          <div class="text-right mt-3">
+            <p class="text-[15px] text-slate-600">PHP <span class="bal-val font-bold text-[#232B2E] text-[18px]">129.16</span></p>
+            <p class="text-[11px] text-slate-400">Available balance</p>
           </div>
         </div>
-        <button onclick="switchMobileTab('details')" class="px-2.5 py-1 rounded-lg bg-rose-500 text-white font-extrabold text-[10px]">Inspect</button>
-      </div>
-    </header>
 
-    <!-- ==================== TAB 1: JOURNEY (LEVELS & MOTIVATION) ==================== -->
-    <main id="tab-journey" class="px-4 -mt-3 space-y-4">
-      
-      <!-- Hero Freedom Ring & Percent-to-Pay Card -->
-      <div class="bg-white rounded-3xl p-5 shadow-md border border-cream-200 relative overflow-hidden">
-        <div class="flex items-center justify-between gap-3">
-          <!-- Circular Radial Gauge -->
-          <div class="relative w-28 h-28 shrink-0 flex items-center justify-center">
-            <svg class="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="42" fill="none" stroke="#F2E9D8" stroke-width="10" />
-              <circle id="freedom-ring" cx="50" cy="50" r="42" fill="none" stroke="url(#crimsonGold)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="158" class="transition-all duration-700" />
-              <defs>
-                <linearGradient id="crimsonGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#B11116" />
-                  <stop offset="100%" stop-color="#D4AF37" />
-                </linearGradient>
-              </defs>
+        <div onclick="triggerDecoy('Savings Account Transactions')" class="bpi-card p-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <p class="text-[13px] font-bold uppercase tracking-wide text-[#232B2E]">SAVINGS ACCOUNT</p>
+          <p class="text-[13px] text-slate-500 mt-0.5">4019022138</p>
+          <div class="text-right mt-3">
+            <p class="text-[15px] text-slate-600">PHP <span class="bal-val font-bold text-[#232B2E] text-[18px]">0.00</span></p>
+            <p class="text-[11px] text-slate-400">Available balance</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-VIEW B: LOANS (Interactive Loan Journey Entry Point + Screenshot 3 Empty/Active State) -->
+      <div id="acct-sub-loans" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-[17px] font-bold text-[#232B2E]">Loans</h2>
+          <span id="bpi-loan-pill-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-[#C83232]">1 Active Loan</span>
+        </div>
+
+        <!-- Active Loan Summary Card -> Launches Full Loan Journey & Budget Tracker -->
+        <div onclick="openLoanTracker('journey', 'Personal Multipurpose Loan')" class="bpi-card p-4 cursor-pointer border-l-4 border-l-[#C83232] active:scale-[0.99] transition-transform">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[13px] font-bold uppercase tracking-wide text-[#232B2E]">MULTIPURPOSE LOAN</p>
+              <p class="text-[12px] text-slate-500 mt-0.5">LN-2025-884120 &bull; <span id="card-pct-paid" class="font-bold text-[#C83232]">40% Paid Off</span></p>
+            </div>
+            <span id="card-risk-chip" class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700">Up-to-date</span>
+          </div>
+
+          <div class="mt-3 flex items-end justify-between">
+            <div>
+              <p class="text-[11px] text-slate-400">Next Semi-Monthly Due</p>
+              <p id="card-next-due-amt" class="text-[13px] font-bold text-[#232B2E]">PHP 5,250.00</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[15px] text-slate-600">PHP <span id="card-loan-bal" class="bal-val font-bold text-[#232B2E] text-[18px]">144,000.00</span></p>
+              <p class="text-[11px] text-slate-400">Outstanding balance</p>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[12px] font-bold text-[#148287]">
+            <span>Open Loan Journey, Budget &amp; Past-Due Tracker</span>
+            <span>&rarr;</span>
+          </div>
+        </div>
+
+        <!-- Secondary Empty-State Illustration matching Screenshot 3 + Apply for a loan link -->
+        <div class="pt-3 pb-2 text-center space-y-2.5">
+          <div class="w-24 h-20 mx-auto rounded-2xl bg-slate-200/60 flex items-center justify-center text-slate-400">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span id="pct-paid-label" class="text-xl font-extrabold text-crimson-700 leading-none">40%</span>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-1">Paid Off</span>
-            </div>
           </div>
-
-          <!-- Remaining Countdown & Coaching -->
-          <div class="flex-1 min-w-0">
-            <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 border border-gold-400/50 text-[11px] font-extrabold text-crimson-700">
-              <span>🔥</span>
-              <span id="pct-left-badge">Only 60% Left to Pay!</span>
-            </div>
-            <h2 id="rank-title" class="text-base font-extrabold text-stone-900 mt-1.5">Quarter-Way Champ</h2>
-            <p id="coach-msg" class="text-xs text-stone-500 mt-0.5 leading-relaxed">
-              ₱24,000.00 more unlocks <strong class="text-crimson-700">50% Halfway Hero</strong>!
-            </p>
-          </div>
-        </div>
-
-        <!-- Milestone Flag Progress Bar -->
-        <div class="mt-4 pt-3.5 border-t border-stone-100">
-          <div class="flex justify-between text-[10px] font-bold text-stone-400 mb-1.5">
-            <span>Start</span>
-            <span>25% 🚩</span>
-            <span>50% 🚩</span>
-            <span>75% 🚩</span>
-            <span>100% 🏆</span>
-          </div>
-          <div class="w-full h-2.5 bg-cream-200 rounded-full overflow-hidden">
-            <div id="milestone-bar" class="h-full crimson-grad rounded-full transition-all duration-500" style="width: 40%;"></div>
-          </div>
-        </div>
-
-        <!-- Quick Goal-Booster Chips -->
-        <div class="mt-4">
-          <p class="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-2">⚡ Preview Extra Payoff Boost</p>
-          <div class="grid grid-cols-3 gap-2">
-            <button onclick="toggleBoost(1000)" id="boost-1000" class="boost-chip py-2 px-2 rounded-xl border border-cream-200 bg-cream-50 text-center transition-all">
-              <span class="block text-xs font-extrabold text-crimson-700">+₱1,000</span>
-              <span class="block text-[10px] text-stone-500">Coffee Skip</span>
-            </button>
-            <button onclick="toggleBoost(2500)" id="boost-2500" class="boost-chip py-2 px-2 rounded-xl border border-cream-200 bg-cream-50 text-center transition-all">
-              <span class="block text-xs font-extrabold text-crimson-700">+₱2,500</span>
-              <span class="block text-[10px] text-stone-500">Payday Boost</span>
-            </button>
-            <button onclick="toggleBoost(5000)" id="boost-5000" class="boost-chip py-2 px-2 rounded-xl border border-cream-200 bg-cream-50 text-center transition-all">
-              <span class="block text-xs font-extrabold text-crimson-700">+₱5,000</span>
-              <span class="block text-[10px] text-stone-500">Super Jump</span>
-            </button>
-          </div>
-          <p id="boost-preview-text" class="hidden text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mt-2"></p>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="mt-4 flex gap-2">
-          <button onclick="logInstallmentPayment()" class="flex-1 crimson-grad text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm active:scale-98 transition-transform flex items-center justify-center gap-1.5">
-            <span>🎉 Log Semi-Monthly Payment</span>
-          </button>
-          <button onclick="undoLastPayment()" id="btn-undo" class="hidden px-3 py-3 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 bg-stone-50">
-            Undo
+          <p class="text-[15px] font-bold text-[#232B2E]">Looking for another loan?</p>
+          <button onclick="openLoanTracker('simulator', 'Personal Multipurpose Loan')" class="text-[13px] font-semibold text-[#148287] underline underline-offset-4">
+            Apply for a loan
           </button>
         </div>
       </div>
 
-      <!-- Trophy Shelf -->
-      <div class="bg-white rounded-2xl p-4 shadow-xs border border-cream-200">
-        <div class="flex items-center justify-between mb-2.5">
-          <h3 class="text-xs font-extrabold uppercase tracking-wider text-stone-700">Milestone Trophies</h3>
-          <span id="trophy-count" class="text-[11px] font-bold text-gold-600">2 / 5 Unlocked</span>
+      <!-- SUB-VIEW C: DECOY PILLS (Investments / Cards / Track & Plan) -->
+      <div id="acct-sub-decoy" class="hidden py-12 text-center space-y-2">
+        <div class="w-20 h-20 mx-auto rounded-2xl bg-slate-200/70 flex items-center justify-center text-slate-400">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M3 10h18" />
+          </svg>
         </div>
-        <div id="trophy-shelf" class="grid grid-cols-5 gap-2 text-center"></div>
+        <p id="decoy-pill-title" class="text-[15px] font-bold text-[#232B2E]">No accounts to display</p>
+        <p class="text-xs text-slate-500">This category is a decoy. Tap the <strong class="text-[#232B2E]">Loans</strong> pill to open your Loan Journey.</p>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- BPI SCREEN 2: MOVE MONEY (Matches Screenshot 1 — All Decoys)        -->
+    <!-- =================================================================== -->
+    <section id="bpi-screen-movemoney" class="hidden pt-6 px-5 space-y-4">
+      <div class="flex items-center justify-between pb-1">
+        <h1 class="text-[22px] font-bold text-[#232B2E] tracking-tight">Move money</h1>
+        <button onclick="triggerDecoy('Favorites & Recipients')" class="p-2 text-slate-600" aria-label="Favorites">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+          </svg>
+        </button>
       </div>
 
-      <!-- 6-Level Winding Loan Journey Map -->
-      <div class="bg-white rounded-3xl p-5 shadow-xs border border-cream-200">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="text-sm font-extrabold text-stone-900">Your 6-Level Payoff Map</h3>
-            <p id="installments-left-label" class="text-xs text-stone-500">29 semi-monthly installments left</p>
+      <div class="space-y-3">
+        <div onclick="triggerDecoy('Transfer money')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-rose-50 text-[#C83232] flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 10h14l-4-4m0 8H3l4 4" /></svg>
           </div>
-          <span class="px-2.5 py-1 rounded-lg bg-cream-100 text-crimson-700 text-[11px] font-extrabold">₱5,000 / cutoff</span>
+          <div>
+            <p class="text-[15px] font-bold text-[#232B2E]">Transfer money</p>
+            <p class="text-[12px] text-slate-500 mt-0.5">Within BPI or to other banks</p>
+          </div>
         </div>
 
-        <div id="levels-map" class="space-y-3 relative"></div>
-      </div>
-    </main>
-
-    <!-- ==================== TAB 2: INCOME & BUDGET TRACKER ==================== -->
-    <main id="tab-budget" class="hidden px-4 -mt-3 space-y-4">
-      <!-- Delinquency Risk Banner -->
-      <div id="risk-banner" class="rounded-2xl p-4 border shadow-xs bg-emerald-50 border-emerald-200 text-emerald-900">
-        <div class="flex items-start gap-3">
-          <span id="risk-icon" class="text-xl">✅</span>
+        <div onclick="triggerDecoy('Pay bills')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+          </div>
           <div>
-            <h3 id="risk-title" class="text-xs font-extrabold uppercase tracking-wider">Healthy Borrowing Capacity</h3>
-            <p id="risk-desc" class="text-xs mt-1 leading-relaxed">Your total financial obligations are safely below the 50% allowable threshold.</p>
+            <p class="text-[15px] font-bold text-[#232B2E]">Pay bills</p>
+            <p class="text-[12px] text-slate-500 mt-0.5">Utilities, credit cards, and more</p>
+          </div>
+        </div>
+
+        <div onclick="triggerDecoy('Load e-wallet')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M12 15v5m-2-2l2-2 2 2" /></svg>
+          </div>
+          <div>
+            <p class="text-[15px] font-bold text-[#232B2E]">Load e-wallet</p>
+            <p class="text-[12px] text-slate-500 mt-0.5">VYBE, Easytrip, AutoSweep RFID, and more</p>
+          </div>
+        </div>
+
+        <div onclick="triggerDecoy('Load prepaid phone')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2" /></svg>
+          </div>
+          <div>
+            <p class="text-[15px] font-bold text-[#232B2E]">Load prepaid phone</p>
+            <p class="text-[12px] text-slate-500 mt-0.5">Globe, Smart, DITO, and other networks</p>
+          </div>
+        </div>
+
+        <div onclick="triggerDecoy('Load other services')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="8" cy="10" r="1" /><circle cx="12" cy="10" r="1" /><circle cx="16" cy="10" r="1" /><path d="M12 14v5" /></svg>
+          </div>
+          <div>
+            <p class="text-[15px] font-bold text-[#232B2E]">Load other services</p>
+            <p class="text-[12px] text-slate-500 mt-0.5">Cignal Prepaid and Meralco Kuryente Load</p>
+          </div>
+        </div>
+
+        <div onclick="triggerDecoy('BPI Remit')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-yellow-50 text-yellow-600 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3.6 9h16.8M3.6 15h16.8" /></svg>
+          </div>
+          <div>
+            <p class="text-[15px] font-bold text-[#232B2E]">BPI Remit</p>
+            <p class="text-[12px] text-slate-500 mt-0.5">Send and receive funds from abroad</p>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- Income & Fixed Policy Cap -->
-      <div class="bg-white rounded-3xl p-5 shadow-xs border border-cream-200 space-y-4">
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-extrabold text-stone-900">Income & Capacity Engine</h2>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-cream-100 text-crimson-700 border border-cream-200">50% Policy Cap</span>
+    <!-- =================================================================== -->
+    <!-- BPI SCREEN 3: PRODUCTS (Housing & Auto Loan = Active; Others Decoy) -->
+    <!-- =================================================================== -->
+    <section id="bpi-screen-products" class="hidden pt-6 px-5 space-y-4">
+      <div class="pb-1">
+        <h1 class="text-[22px] font-bold text-[#232B2E] tracking-tight">Products</h1>
+      </div>
+
+      <div class="space-y-3">
+        <div onclick="triggerDecoy('Open a savings account')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-rose-50 text-[#C83232] flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M12 9v6m-3-3h6" /></svg>
+          </div>
+          <p class="text-[15px] font-bold text-[#232B2E]">Open a savings account</p>
+        </div>
+
+        <div onclick="triggerDecoy('Open a time deposit')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l2.5 2.5" /></svg>
+          </div>
+          <p class="text-[15px] font-bold text-[#232B2E]">Open a time deposit</p>
+        </div>
+
+        <div onclick="triggerDecoy('Open an investment account')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 17v-5m4 5V7m4 10v-3" /></svg>
+          </div>
+          <p class="text-[15px] font-bold text-[#232B2E]">Open an investment account</p>
+        </div>
+
+        <div onclick="triggerDecoy('Apply for a credit card')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M3 10h18" /></svg>
+          </div>
+          <p class="text-[15px] font-bold text-[#232B2E]">Apply for a credit card</p>
+        </div>
+
+        <!-- ACTIVE LOAN BUTTON 1: APPLY FOR A HOUSING LOAN -->
+        <div onclick="openLoanTracker('simulator', 'Housing Loan')" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform ring-1 ring-rose-200/80">
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-rose-50 text-[#C83232] flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" /></svg>
+            </div>
+            <div>
+              <p class="text-[15px] font-bold text-[#232B2E]">Apply for a housing loan</p>
+              <p class="text-[11px] font-semibold text-[#C83232]">Opens Loan Journey &amp; Simulator</p>
+            </div>
+          </div>
+          <span class="text-slate-400 font-bold">&rsaquo;</span>
+        </div>
+
+        <!-- ACTIVE LOAN BUTTON 2: APPLY FOR AN AUTO LOAN -->
+        <div onclick="openLoanTracker('simulator', 'Auto Loan')" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform ring-1 ring-emerald-200/80">
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 11l1.5-4.5h11L19 11M4 11h16v6H4v-6zm3 6v2m10-2v2" /></svg>
+            </div>
+            <div>
+              <p class="text-[15px] font-bold text-[#232B2E]">Apply for an auto loan</p>
+              <p class="text-[11px] font-semibold text-emerald-700">Opens Loan Journey &amp; Simulator</p>
+            </div>
+          </div>
+          <span class="text-slate-400 font-bold">&rsaquo;</span>
+        </div>
+
+        <div onclick="triggerDecoy('Apply for health & life insurance')" class="bpi-card p-4 flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z" /></svg>
+          </div>
+          <p class="text-[15px] font-bold text-[#232B2E]">Apply for health &amp; life insurance</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- BPI SCREEN 4: MORE (Matches Screenshot 5 — All Decoys)              -->
+    <!-- =================================================================== -->
+    <section id="bpi-screen-more" class="hidden pt-6 px-5 space-y-6">
+      <div class="flex items-center justify-between">
+        <h1 class="text-[22px] font-bold text-[#232B2E] tracking-tight">More</h1>
+        <button onclick="triggerDecoy('Log out')" class="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#148287]">
+          <span>Log out</span>
+        </button>
+      </div>
+
+      <!-- Invest -->
+      <div>
+        <h2 class="text-[15px] font-bold text-[#232B2E] mb-3">Invest</h2>
+        <div class="grid grid-cols-4 gap-2.5 text-center">
+          <button onclick="triggerDecoy('Subscribe')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl font-bold">+</div>
+            <span class="text-[11px] font-medium text-slate-700">Subscribe</span>
+          </button>
+          <button onclick="triggerDecoy('Set up RSP')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg font-bold">&#8644;</div>
+            <span class="text-[11px] font-medium text-slate-700">Set up RSP</span>
+          </button>
+          <button onclick="triggerDecoy('Amend RSP')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg font-bold">&#9998;</div>
+            <span class="text-[11px] font-medium text-slate-700">Amend RSP</span>
+          </button>
+          <button onclick="triggerDecoy('Redeem')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg font-bold">&#9711;</div>
+            <span class="text-[11px] font-medium text-slate-700">Redeem</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div>
+        <h2 class="text-[15px] font-bold text-[#232B2E] mb-3">Services</h2>
+        <div class="grid grid-cols-4 gap-2.5 text-center">
+          <button onclick="triggerDecoy('My Statements')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold">&#9776;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">My Statements</span>
+          </button>
+          <button onclick="triggerDecoy('Generate QR')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold">&#9638;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">Generate QR</span>
+          </button>
+          <button onclick="triggerDecoy('Track & Plan')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold">&#9906;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">Track &amp; Plan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Transactions -->
+      <div>
+        <h2 class="text-[15px] font-bold text-[#232B2E] mb-3">Transactions</h2>
+        <div class="grid grid-cols-4 gap-2.5 text-center">
+          <button onclick="triggerDecoy('Cardless withdrawal')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-lg font-bold">&#9645;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">Cardless withdrawal</span>
+          </button>
+          <button onclick="triggerDecoy('Reorder checkbook')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-lg font-bold">&#9998;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">Reorder checkbook</span>
+          </button>
+          <button onclick="triggerDecoy('Stop payment order')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-lg font-bold">&#8856;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">Stop payment order</span>
+          </button>
+          <button onclick="triggerDecoy('Partner store transactions')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-lg font-bold">&#8962;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">Partner store</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card management -->
+      <div>
+        <h2 class="text-[15px] font-bold text-[#232B2E] mb-3">Card management</h2>
+        <div class="grid grid-cols-4 gap-2.5 text-center">
+          <button onclick="triggerDecoy('Card Control')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg font-bold">&#9881;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">Card Control</span>
+          </button>
+          <button onclick="triggerDecoy('New debit card')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg font-bold">&#9635;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">New debit card</span>
+          </button>
+          <button onclick="triggerDecoy('Debit card replacement')" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg font-bold">&#8635;</div>
+            <span class="text-[11px] font-medium text-slate-700 leading-tight">Debit card replacement</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- BPI BOTTOM NAVIGATION BAR WITH CENTER FLOATING RED QR BUTTON        -->
+    <!-- =================================================================== -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-slate-200/80 px-2 pt-2 pb-3 flex items-center justify-between z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.04)]">
+      <button onclick="switchBpiTab('accounts')" id="bpi-nav-accounts" class="bpi-bottom-btn flex-1 flex flex-col items-center gap-1 text-[#C83232] font-bold text-[11px] relative">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M9 9v11" /></svg>
+        <span>Accounts</span>
+        <span class="nav-indicator w-10 h-0.5 bg-[#C83232] rounded-full mt-0.5"></span>
+      </button>
+
+      <button onclick="switchBpiTab('movemoney')" id="bpi-nav-movemoney" class="bpi-bottom-btn flex-1 flex flex-col items-center gap-1 text-slate-500 font-medium text-[11px] relative">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 10h14l-4-4m0 8H3l4 4" /></svg>
+        <span>Move money</span>
+        <span class="nav-indicator hidden w-10 h-0.5 bg-[#C83232] rounded-full mt-0.5"></span>
+      </button>
+
+      <!-- Center Floating Red QR Button (Decoy) -->
+      <div class="w-16 flex justify-center -mt-7">
+        <button onclick="triggerDecoy('QR Ph Scanner')" class="w-14 h-14 rounded-full bg-[#C83232] text-white shadow-lg shadow-rose-900/30 flex items-center justify-center active:scale-95 transition-transform border-4 border-white" aria-label="QR Code">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 7V4h3M17 4h3v3M4 17v3h3M20 17v3h-3M8 8h3v3H8V8zm5 0h3v3h-3V8zm-5 5h3v3H8v-3zm5 2h3m-1-2v3" />
+          </svg>
+        </button>
+      </div>
+
+      <button onclick="switchBpiTab('products')" id="bpi-nav-products" class="bpi-bottom-btn flex-1 flex flex-col items-center gap-1 text-slate-500 font-medium text-[11px] relative">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></svg>
+        <span>Products</span>
+        <span class="nav-indicator hidden w-10 h-0.5 bg-[#C83232] rounded-full mt-0.5"></span>
+      </button>
+
+      <button onclick="switchBpiTab('more')" id="bpi-nav-more" class="bpi-bottom-btn flex-1 flex flex-col items-center gap-1 text-slate-500 font-medium text-[11px] relative">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+        <span>More</span>
+        <span class="nav-indicator hidden w-10 h-0.5 bg-[#C83232] rounded-full mt-0.5"></span>
+      </button>
+    </nav>
+
+    <!-- =================================================================== -->
+    <!-- FULL-SCREEN LOAN JOURNEY & BUDGET TRACKER OVERLAY (ALL LOAN BUTTONS) -->
+    <!-- =================================================================== -->
+    <div id="loan-journey-overlay" class="fixed inset-0 z-50 hidden bg-[#FAF6EE] overflow-y-auto pb-24 animate-sheet" style="max-width:430px;margin:0 auto;">
+      
+      <!-- Top App Header with Back-to-BPI Button -->
+      <header class="crimson-grad text-white px-5 pt-4 pb-7 rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <button onclick="closeLoanTracker()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-colors">
+            <span>&larr;</span>
+            <span>Back to BPI</span>
+          </button>
+          <div id="header-risk-pill" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Low Risk</span>
+          </div>
         </div>
 
         <div>
-          <div class="flex justify-between text-xs font-bold mb-1">
-            <label for="inp-monthly-income" class="text-stone-600">Net Monthly Income (₱)</label>
-            <span id="lbl-semi-income" class="text-crimson-700">Semi-Monthly: ₱22,500.00</span>
-          </div>
-          <input id="inp-monthly-income" type="number" value="45000" step="500" oninput="recalcBudget()" class="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm font-extrabold text-stone-900 focus:outline-none focus:ring-2 focus:ring-crimson-600" />
+          <p id="tracker-context-label" class="text-[11px] uppercase tracking-widest text-gold-300 font-bold">BPI Loan Portal</p>
+          <h1 class="text-lg font-extrabold tracking-tight mt-0.5">Payoff Journey &amp; Budget</h1>
         </div>
 
-        <div>
-          <div class="flex justify-between text-xs font-bold mb-1">
-            <label for="inp-other-obligations" class="text-stone-600">Other Monthly Expenses / Bills (₱)</label>
-            <span class="text-stone-400">Non-loan obligations</span>
-          </div>
-          <input id="inp-other-obligations" type="number" value="6000" step="500" oninput="recalcBudget()" class="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm font-extrabold text-stone-900 focus:outline-none focus:ring-2 focus:ring-crimson-600" />
-        </div>
-
-        <!-- Fixed Allowable Obligation Threshold Display (No Slider) -->
-        <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200 flex items-center justify-between">
+        <!-- Account Strip -->
+        <div class="mt-3.5 bg-black/25 backdrop-blur-xs rounded-2xl p-3.5 border border-white/10 flex items-center justify-between">
           <div>
-            <p class="text-xs font-extrabold text-stone-800">Allowable Obligation Threshold</p>
-            <p class="text-[11px] text-stone-500">Fixed maximum debt-to-income policy</p>
+            <p class="text-[10px] uppercase tracking-wider text-cream-200/80 font-semibold">Active Loan Account</p>
+            <p class="text-xs font-mono font-bold text-gold-300 mt-0.5">LN-2025-884120</p>
           </div>
-          <span class="px-3 py-1 rounded-xl crimson-grad text-gold-300 text-xs font-extrabold">50% Fixed</span>
-        </div>
-
-        <!-- Calculated Metrics Grid -->
-        <div class="grid grid-cols-2 gap-2.5 pt-1">
-          <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200">
-            <p class="text-[10px] font-bold uppercase text-stone-400">Max. Eligibility</p>
-            <p id="val-max-eligibility" class="text-sm font-extrabold text-crimson-700 mt-0.5">₱117,000.00</p>
-            <p class="text-[10px] text-stone-500">Remaining capacity</p>
-          </div>
-          <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200">
-            <p class="text-[10px] font-bold uppercase text-stone-400">Max. Semi-Monthly</p>
-            <p id="val-max-semi" class="text-sm font-extrabold text-stone-900 mt-0.5">₱11,250.00</p>
-            <p class="text-[10px] text-stone-500">Allowable installment</p>
-          </div>
-          <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200">
-            <p class="text-[10px] font-bold uppercase text-stone-400">CRL Value</p>
-            <p id="val-crl" class="text-sm font-extrabold text-stone-900 mt-0.5">₱22,500.00</p>
-            <p class="text-[10px] text-stone-500">Credit Risk Limit / mo</p>
-          </div>
-          <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200">
-            <p class="text-[10px] font-bold uppercase text-stone-400">Obligation Ratio</p>
-            <p id="val-ratio" class="text-sm font-extrabold text-emerald-700 mt-0.5">35.6%</p>
-            <p id="val-ratio-sub" class="text-[10px] text-stone-500">Limit: 50%</p>
+          <div class="text-right">
+            <p class="text-[10px] uppercase tracking-wider text-cream-200/80 font-semibold">Outstanding Balance</p>
+            <p id="hdr-outstanding" class="text-base font-extrabold text-white mt-0.5">₱144,000.00</p>
           </div>
         </div>
 
-        <!-- Days Late & 3% Late Charge Detector -->
-        <div class="pt-3 border-t border-stone-100 space-y-2.5">
+        <!-- Past-Due Alert Strip (Appears automatically when past due) -->
+        <div id="hdr-pastdue-strip" class="hidden mt-3 bg-rose-950/90 border border-rose-400/50 rounded-2xl px-3.5 py-2.5 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span>&#9888;</span>
+            <div>
+              <p class="font-extrabold text-rose-200">Past Due (<span id="hdr-late-days">0</span>d) &bull; +3% Charge</p>
+              <p class="text-[11px] text-rose-100/90">Due After Cutoff: <strong id="hdr-after-due-amt" class="text-gold-300">₱5,400.00</strong></p>
+            </div>
+          </div>
+          <button onclick="switchTrackerTab('details')" class="px-2.5 py-1 rounded-lg bg-rose-500 text-white font-extrabold text-[10px]">Inspect</button>
+        </div>
+      </header>
+
+      <!-- SUB-TAB 1: JOURNEY -->
+      <main id="trk-tab-journey" class="px-4 -mt-3 space-y-4">
+        <div class="bg-white rounded-3xl p-5 shadow-md border border-cream-200 relative overflow-hidden">
+          <div class="flex items-center justify-between gap-3">
+            <div class="relative w-28 h-28 shrink-0 flex items-center justify-center">
+              <svg class="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#F2E9D8" stroke-width="10" />
+                <circle id="freedom-ring" cx="50" cy="50" r="42" fill="none" stroke="url(#crimsonGold)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="158" class="transition-all duration-700" />
+                <defs>
+                  <linearGradient id="crimsonGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#B11116" />
+                    <stop offset="100%" stop-color="#D4AF37" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span id="pct-paid-label" class="text-xl font-extrabold text-crimson-700 leading-none">40%</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-1">Paid Off</span>
+              </div>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 border border-gold-400/50 text-[11px] font-extrabold text-crimson-700">
+                <span id="pct-left-badge">Only 60% Left to Pay!</span>
+              </div>
+              <h2 id="rank-title" class="text-base font-extrabold text-stone-900 mt-1.5">Quarter-Way Champ</h2>
+              <p id="coach-msg" class="text-xs text-stone-500 mt-0.5 leading-relaxed">
+                ₱24,000.00 more unlocks <strong class="text-crimson-700">50% Halfway Hero</strong>!
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3.5 border-t border-stone-100">
+            <div class="flex justify-between text-[10px] font-bold text-stone-400 mb-1.5">
+              <span>Start</span>
+              <span>25%</span>
+              <span>50%</span>
+              <span>75%</span>
+              <span>100%</span>
+            </div>
+            <div class="w-full h-2.5 bg-cream-200 rounded-full overflow-hidden">
+              <div id="milestone-bar" class="h-full crimson-grad rounded-full transition-all duration-500" style="width: 40%;"></div>
+            </div>
+          </div>
+
+          <!-- Quick Goal-Booster Chips -->
+          <div class="mt-4">
+            <p class="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-2">Preview Extra Payoff Boost</p>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="toggleBoost(1000)" id="boost-1000" class="boost-chip py-2 px-2 rounded-xl border border-cream-200 bg-cream-50 text-center transition-all">
+                <span class="block text-xs font-extrabold text-crimson-700">+₱1,000</span>
+                <span class="block text-[10px] text-stone-500">Coffee Skip</span>
+              </button>
+              <button onclick="toggleBoost(2500)" id="boost-2500" class="boost-chip py-2 px-2 rounded-xl border border-cream-200 bg-cream-50 text-center transition-all">
+                <span class="block text-xs font-extrabold text-crimson-700">+₱2,500</span>
+                <span class="block text-[10px] text-stone-500">Payday Boost</span>
+              </button>
+              <button onclick="toggleBoost(5000)" id="boost-5000" class="boost-chip py-2 px-2 rounded-xl border border-cream-200 bg-cream-50 text-center transition-all">
+                <span class="block text-xs font-extrabold text-crimson-700">+₱5,000</span>
+                <span class="block text-[10px] text-stone-500">Super Jump</span>
+              </button>
+            </div>
+            <p id="boost-preview-text" class="hidden text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mt-2"></p>
+          </div>
+
+          <div class="mt-4 flex gap-2">
+            <button onclick="logInstallmentPayment()" class="flex-1 crimson-grad text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm active:scale-98 transition-transform">
+              Log Semi-Monthly Payment
+            </button>
+            <button onclick="undoLastPayment()" id="btn-undo" class="hidden px-3 py-3 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 bg-stone-50">
+              Undo
+            </button>
+          </div>
+        </div>
+
+        <!-- Trophy Shelf -->
+        <div class="bg-white rounded-2xl p-4 shadow-xs border border-cream-200">
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-stone-700">Milestone Trophies</h3>
+            <span id="trophy-count" class="text-[11px] font-bold text-gold-600">2 / 5 Unlocked</span>
+          </div>
+          <div id="trophy-shelf" class="grid grid-cols-5 gap-2 text-center"></div>
+        </div>
+
+        <!-- 6-Level Map -->
+        <div class="bg-white rounded-3xl p-5 shadow-xs border border-cream-200">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-extrabold text-stone-900">Your 6-Level Payoff Map</h3>
+              <p id="installments-left-label" class="text-xs text-stone-500">29 semi-monthly installments left</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-cream-100 text-crimson-700 text-[11px] font-extrabold">₱5,000 / cutoff</span>
+          </div>
+          <div id="levels-map" class="space-y-3 relative"></div>
+        </div>
+      </main>
+
+      <!-- SUB-TAB 2: BUDGET (Fixed 50% Policy Cap + Co-Borrower + Late Charge) -->
+      <main id="trk-tab-budget" class="hidden px-4 -mt-3 space-y-4">
+        <div id="risk-banner" class="rounded-2xl p-4 border shadow-xs bg-emerald-50 border-emerald-200 text-emerald-900">
+          <h3 id="risk-title" class="text-xs font-extrabold uppercase tracking-wider">Healthy Borrowing Capacity</h3>
+          <p id="risk-desc" class="text-xs mt-1 leading-relaxed">Your total financial obligations are safely below the fixed 50% allowable threshold.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-5 shadow-xs border border-cream-200 space-y-4">
           <div class="flex items-center justify-between">
+            <h2 class="text-sm font-extrabold text-stone-900">Income &amp; Capacity Engine</h2>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-cream-100 text-crimson-700 border border-cream-200">50% Policy Cap</span>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <label for="inp-monthly-income" class="text-stone-600">Personal Net Monthly Income (₱)</label>
+              <span id="lbl-semi-income" class="text-crimson-700">Semi-Monthly: ₱22,500.00</span>
+            </div>
+            <input id="inp-monthly-income" type="number" value="45000" step="500" oninput="syncIncomeInputs('personal', this.value)" class="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm font-extrabold text-stone-900 focus:outline-none focus:ring-2 focus:ring-crimson-600" />
+          </div>
+
+          <!-- Co-Borrower Yes/No Toggle -->
+          <div class="p-3.5 rounded-2xl bg-cream-50 border border-cream-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-extrabold text-stone-800">Include Co-Borrower?</p>
+                <p class="text-[10px] text-stone-500">Combines income for higher 50% limit</p>
+              </div>
+              <div class="inline-flex rounded-xl bg-white p-0.5 border border-cream-200">
+                <button type="button" onclick="setHasCoBorrower(false)" id="bgt-coborrower-no" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold crimson-grad text-white">No</button>
+                <button type="button" onclick="setHasCoBorrower(true)" id="bgt-coborrower-yes" class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-stone-600">Yes</button>
+              </div>
+            </div>
+
+            <div id="bgt-coborrower-box" class="hidden pt-1 border-t border-cream-200">
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <label for="inp-coborrower-income" class="text-stone-600">Co-Borrower Net Monthly Income (₱)</label>
+                <span id="lbl-combined-income" class="text-emerald-700">Combined: ₱70,000.00</span>
+              </div>
+              <input id="inp-coborrower-income" type="number" value="25000" step="500" oninput="syncIncomeInputs('coborrower', this.value)" class="w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-sm font-extrabold text-stone-900 focus:outline-none focus:ring-2 focus:ring-crimson-600" />
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <label for="inp-other-obligations" class="text-stone-600">Other Monthly Expenses / Bills (₱)</label>
+              <span class="text-stone-400">Non-loan obligations</span>
+            </div>
+            <input id="inp-other-obligations" type="number" value="6000" step="500" oninput="recalcBudget()" class="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm font-extrabold text-stone-900 focus:outline-none focus:ring-2 focus:ring-crimson-600" />
+          </div>
+
+          <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200 flex items-center justify-between">
             <div>
-              <p class="text-xs font-extrabold text-stone-800">Days Past Due Date</p>
-              <p class="text-[11px] text-stone-500">Triggers +3% late charge on amortization</p>
+              <p class="text-xs font-extrabold text-stone-800">Allowable Obligation Threshold</p>
+              <p class="text-[11px] text-stone-500">Fixed maximum debt-to-income policy</p>
             </div>
-            <div class="flex items-center gap-2">
-              <button onclick="changeDaysLate(-1)" class="w-8 h-8 rounded-xl bg-stone-100 font-extrabold text-stone-700">-</button>
-              <span id="val-days-late" class="w-8 text-center text-sm font-extrabold text-stone-900">0</span>
-              <button onclick="changeDaysLate(1)" class="w-8 h-8 rounded-xl bg-crimson-600 font-extrabold text-white">+</button>
+            <span class="px-3 py-1 rounded-xl crimson-grad text-gold-300 text-xs font-extrabold">50% Fixed</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 pt-1">
+            <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200">
+              <p class="text-[10px] font-bold uppercase text-stone-400">Max. Eligibility</p>
+              <p id="val-max-eligibility" class="text-sm font-extrabold text-crimson-700 mt-0.5">₱117,000.00</p>
+              <p class="text-[10px] text-stone-500">Remaining capacity</p>
+            </div>
+            <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200">
+              <p class="text-[10px] font-bold uppercase text-stone-400">Max. Semi-Monthly</p>
+              <p id="val-max-semi" class="text-sm font-extrabold text-stone-900 mt-0.5">₱11,250.00</p>
+              <p class="text-[10px] text-stone-500">Allowable installment</p>
+            </div>
+            <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200">
+              <p class="text-[10px] font-bold uppercase text-stone-400">CRL Value</p>
+              <p id="val-crl" class="text-sm font-extrabold text-stone-900 mt-0.5">₱22,500.00</p>
+              <p class="text-[10px] text-stone-500">Credit Risk Limit / mo</p>
+            </div>
+            <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200">
+              <p class="text-[10px] font-bold uppercase text-stone-400">Obligation Ratio</p>
+              <p id="val-ratio" class="text-sm font-extrabold text-emerald-700 mt-0.5">35.6%</p>
+              <p id="val-ratio-sub" class="text-[10px] text-stone-500">Limit: 50%</p>
             </div>
           </div>
 
-          <div id="budget-late-summary" class="p-3 rounded-2xl bg-cream-50 border border-cream-200 text-xs flex justify-between items-center">
+          <div class="pt-3 border-t border-stone-100 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-extrabold text-stone-800">Days Past Due Date</p>
+                <p class="text-[11px] text-stone-500">Triggers +3% late charge on amortization</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="changeDaysLate(-1)" class="w-8 h-8 rounded-xl bg-stone-100 font-extrabold text-stone-700">-</button>
+                <span id="val-days-late" class="w-8 text-center text-sm font-extrabold text-stone-900">0</span>
+                <button onclick="changeDaysLate(1)" class="w-8 h-8 rounded-xl bg-crimson-600 font-extrabold text-white">+</button>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-cream-50 border border-cream-200 text-xs flex justify-between items-center">
+              <div>
+                <span class="text-stone-500 block text-[10px] uppercase font-bold">Total Due After Due Date (+3%)</span>
+                <strong id="budget-after-due" class="text-sm font-extrabold text-stone-900">₱5,400.00</strong>
+              </div>
+              <span id="budget-late-status-tag" class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-100 text-emerald-800">On Time (₱0 Penalty)</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- SUB-TAB 3: DETAILS & 3% LATE FEE BREAKDOWN -->
+      <main id="trk-tab-details" class="hidden px-4 -mt-3 space-y-4">
+        <div class="bg-white rounded-3xl p-5 shadow-xs border border-cream-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-extrabold text-stone-900">Total Amount Due Details</h2>
+            <span id="det-status-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Up-to-date</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs bg-cream-50 p-3.5 rounded-2xl border border-cream-200">
             <div>
-              <span class="text-stone-500 block text-[10px] uppercase font-bold">Total Due After Due Date (+3%)</span>
-              <strong id="budget-after-due" class="text-sm font-extrabold text-stone-900">₱5,400.00</strong>
+              <p class="text-stone-400 font-semibold">Scheduled Due Date</p>
+              <p class="font-extrabold text-stone-900 mt-0.5">Nov 30, 2026</p>
             </div>
-            <span id="budget-late-status-tag" class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-100 text-emerald-800">On Time (₱0 Penalty)</span>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- ==================== TAB 3: LOAN DETAILS & BILLING ==================== -->
-    <main id="tab-details" class="hidden px-4 -mt-3 space-y-4">
-      <!-- Total Amount Due Breakdown -->
-      <div class="bg-white rounded-3xl p-5 shadow-xs border border-cream-200 space-y-3">
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-extrabold text-stone-900">Total Amount Due Details</h2>
-          <span id="det-status-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Up-to-date</span>
-        </div>
-
-        <!-- Due Date & Past-Due Detection Box -->
-        <div class="grid grid-cols-2 gap-3 text-xs bg-cream-50 p-3.5 rounded-2xl border border-cream-200">
-          <div>
-            <p class="text-stone-400 font-semibold">Scheduled Due Date</p>
-            <p id="det-due-date" class="font-extrabold text-stone-900 mt-0.5">Nov 30, 2026</p>
-          </div>
-          <div>
-            <p class="text-stone-400 font-semibold">Due On / Before Date</p>
-            <p id="det-total-due" class="font-extrabold text-stone-900 mt-0.5">₱5,250.00</p>
-          </div>
-          <div>
-            <p class="text-stone-400 font-semibold">Last Payment Date</p>
-            <p id="det-last-date" class="font-extrabold text-stone-900 mt-0.5">Nov 15, 2026</p>
-          </div>
-          <div>
-            <p class="text-stone-400 font-semibold">Last Payment Amount</p>
-            <p id="det-last-amt" class="font-extrabold text-stone-900 mt-0.5">₱5,250.00</p>
-          </div>
-        </div>
-
-        <!-- Line-by-Line Amortization & 3% Late Fee Breakdown -->
-        <div class="space-y-2 text-xs pt-1">
-          <div class="flex justify-between"><span class="text-stone-500">Semi-Monthly Amortization</span><span class="font-bold text-stone-900">₱5,000.00</span></div>
-          <div class="flex justify-between"><span class="text-stone-500">Monthly Amortization Equivalent</span><span class="font-bold text-stone-700">₱10,000.00 / mo</span></div>
-          <div class="flex justify-between"><span class="text-stone-500">Insurance Premium</span><span class="font-bold text-stone-900">₱250.00</span></div>
-          <div class="flex justify-between"><span class="text-stone-500">Partial Payment</span><span class="font-bold text-stone-900">₱0.00</span></div>
-          <div class="flex justify-between"><span class="text-stone-500">Days Past Due</span><span id="det-days-late" class="font-bold text-stone-900">0</span></div>
-          <div class="flex justify-between">
-            <span class="text-stone-500">3% Late Payment Charge <span class="text-[10px] text-stone-400">(on ₱5,000 amort.)</span></span>
-            <span id="det-late-fee" class="font-bold text-stone-400">₱0.00 (Inactive)</span>
-          </div>
-
-          <!-- Highlighted Total Amount Due After Due Date -->
-          <div id="det-after-due-box" class="mt-2 p-3 rounded-2xl bg-amber-50 border border-gold-400/60 space-y-1.5">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-stone-700">Current Payable Now</span>
-              <span id="det-current-payable" class="font-extrabold text-crimson-700 text-sm">₱5,250.00</span>
+            <div>
+              <p class="text-stone-400 font-semibold">Due On / Before Date</p>
+              <p id="det-total-due" class="font-extrabold text-stone-900 mt-0.5">₱5,250.00</p>
             </div>
-            <div class="flex justify-between items-center text-xs pt-1.5 border-t border-gold-400/30">
-              <span class="font-extrabold text-stone-900">Total Amount Due After Due Date (+3%)</span>
-              <span id="det-after-due-total" class="font-extrabold text-crimson-800 text-sm">₱5,400.00</span>
+            <div>
+              <p class="text-stone-400 font-semibold">Last Payment Date</p>
+              <p class="font-extrabold text-stone-900 mt-0.5">Nov 15, 2026</p>
             </div>
-            <p class="text-[10px] text-stone-500">Includes ₱150.00 (3% of ₱5,000.00 semi-monthly amortization; ₱300.00/mo full monthly equivalent) if unpaid after due date.</p>
+            <div>
+              <p class="text-stone-400 font-semibold">Last Payment Amount</p>
+              <p class="font-extrabold text-stone-900 mt-0.5">₱5,250.00</p>
+            </div>
           </div>
-        </div>
 
-        <!-- Quick Past-Due Simulator Button -->
-        <div class="pt-1 flex gap-2">
+          <div class="space-y-2 text-xs pt-1">
+            <div class="flex justify-between"><span class="text-stone-500">Semi-Monthly Amortization</span><span class="font-bold text-stone-900">₱5,000.00</span></div>
+            <div class="flex justify-between"><span class="text-stone-500">Monthly Amortization Equivalent</span><span class="font-bold text-stone-700">₱10,000.00 / mo</span></div>
+            <div class="flex justify-between"><span class="text-stone-500">Insurance Premium</span><span class="font-bold text-stone-900">₱250.00</span></div>
+            <div class="flex justify-between"><span class="text-stone-500">Days Past Due</span><span id="det-days-late" class="font-bold text-stone-900">0</span></div>
+            <div class="flex justify-between">
+              <span class="text-stone-500">3% Late Payment Charge <span class="text-[10px] text-stone-400">(on ₱5,000 amort.)</span></span>
+              <span id="det-late-fee" class="font-bold text-stone-400">₱0.00 (Inactive)</span>
+            </div>
+
+            <div id="det-after-due-box" class="mt-2 p-3 rounded-2xl bg-amber-50 border border-gold-400/60 space-y-1.5">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-stone-700">Current Payable Now</span>
+                <span id="det-current-payable" class="font-extrabold text-crimson-700 text-sm">₱5,250.00</span>
+              </div>
+              <div class="flex justify-between items-center text-xs pt-1.5 border-t border-gold-400/30">
+                <span class="font-extrabold text-stone-900">Total Amount Due After Due Date (+3%)</span>
+                <span id="det-after-due-total" class="font-extrabold text-crimson-800 text-sm">₱5,400.00</span>
+              </div>
+              <p class="text-[10px] text-stone-500">Includes ₱150.00 (3% of ₱5,000.00 semi-monthly amortization; ₱300.00/mo full monthly equivalent) if unpaid after due date.</p>
+            </div>
+          </div>
+
           <button onclick="togglePastDueDemo()" id="btn-pastdue-toggle" class="w-full py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 font-extrabold text-xs">
             Simulate Past Due (+5 Days Late)
           </button>
         </div>
-      </div>
 
-      <!-- Collapsible Accordions -->
-      <div class="space-y-2.5">
-        <details open class="bg-white rounded-2xl p-4 shadow-xs border border-cream-200">
-          <summary class="text-xs font-extrabold uppercase tracking-wider text-crimson-700 cursor-pointer">Loan Details</summary>
-          <div class="mt-3 space-y-2 text-xs border-t border-stone-100 pt-3">
-            <div class="flex justify-between"><span class="text-stone-500">Account Number</span><span class="font-mono font-bold">LN-2025-884120</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Loan Amount</span><span class="font-bold">₱240,000.00</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Date of Loan</span><span class="font-bold">Feb 15, 2025</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Term</span><span class="font-bold">48 Cutoffs (24 Months)</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">First Due Date</span><span class="font-bold">Feb 28, 2025</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Maturity Date</span><span class="font-bold">Feb 15, 2027</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Payoff Amount</span><span id="det-payoff" class="font-bold text-crimson-700">₱145,120.00</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Remaining Term</span><span id="det-rem-term" class="font-bold">29 Cutoffs</span></div>
-          </div>
-        </details>
+        <div class="space-y-2.5">
+          <details open class="bg-white rounded-2xl p-4 shadow-xs border border-cream-200">
+            <summary class="text-xs font-extrabold uppercase tracking-wider text-crimson-700 cursor-pointer">Loan Details</summary>
+            <div class="mt-3 space-y-2 text-xs border-t border-stone-100 pt-3">
+              <div class="flex justify-between"><span class="text-stone-500">Account Number</span><span class="font-mono font-bold">LN-2025-884120</span></div>
+              <div class="flex justify-between"><span class="text-stone-500">Loan Amount</span><span class="font-bold">₱240,000.00</span></div>
+              <div class="flex justify-between"><span class="text-stone-500">Term</span><span class="font-bold">48 Cutoffs (24 Months)</span></div>
+              <div class="flex justify-between"><span class="text-stone-500">Payoff Amount</span><span id="det-payoff" class="font-bold text-crimson-700">₱145,120.00</span></div>
+              <div class="flex justify-between"><span class="text-stone-500">Remaining Term</span><span id="det-rem-term" class="font-bold">29 Cutoffs</span></div>
+            </div>
+          </details>
 
-        <details class="bg-white rounded-2xl p-4 shadow-xs border border-cream-200">
-          <summary class="text-xs font-extrabold uppercase tracking-wider text-crimson-700 cursor-pointer">Insurance Details</summary>
-          <div class="mt-3 space-y-2 text-xs border-t border-stone-100 pt-3">
-            <div class="flex justify-between"><span class="text-stone-500">Policy Number</span><span class="font-mono font-bold">POL-9940218</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Insurance Company</span><span class="font-bold">BPI/MS Insurance Corp.</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Expiry Date</span><span class="font-bold">Feb 15, 2027</span></div>
-          </div>
-        </details>
-
-        <details class="bg-white rounded-2xl p-4 shadow-xs border border-cream-200">
-          <summary class="text-xs font-extrabold uppercase tracking-wider text-crimson-700 cursor-pointer">Collateral & Co-Maker Details</summary>
-          <div class="mt-3 space-y-2 text-xs border-t border-stone-100 pt-3">
-            <div class="flex justify-between"><span class="text-stone-500">Collateral Ref.</span><span class="font-mono font-bold">VEH-2025-7741</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Collateral Asset</span><span class="font-bold">2025 Sedan Unit</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Co-Maker</span><span class="font-bold">A. Santos (Verified)</span></div>
-          </div>
-        </details>
-      </div>
-    </main>
-
-    <!-- ==================== TAB 4: NEW LOAN SIMULATOR ==================== -->
-    <main id="tab-simulator" class="hidden px-4 -mt-3 space-y-4">
-      <div class="bg-white rounded-3xl p-5 shadow-xs border border-cream-200 space-y-4">
-        <div>
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-gold-600">Multipurpose Loan Estimator (50% Fixed Cap)</span>
-          <h2 class="text-base font-extrabold text-stone-900">New Loan & Installment Simulator</h2>
+          <details class="bg-white rounded-2xl p-4 shadow-xs border border-cream-200">
+            <summary class="text-xs font-extrabold uppercase tracking-wider text-crimson-700 cursor-pointer">Insurance Details</summary>
+            <div class="mt-3 space-y-2 text-xs border-t border-stone-100 pt-3">
+              <div class="flex justify-between"><span class="text-stone-500">Policy Number</span><span class="font-mono font-bold">POL-9940218</span></div>
+              <div class="flex justify-between"><span class="text-stone-500">Insurance Company</span><span class="font-bold">BPI/MS Insurance Corp.</span></div>
+              <div class="flex justify-between"><span class="text-stone-500">Expiry Date</span><span class="font-bold">Feb 15, 2027</span></div>
+            </div>
+          </details>
         </div>
+      </main>
 
-        <!-- Term Selector -->
-        <div>
-          <label class="block text-xs font-bold text-stone-600 mb-1.5">Loan Term (1 to 3 Years)</label>
-          <div class="grid grid-cols-3 gap-2">
-            <button onclick="setSimTerm(12)" id="sim-term-12" class="sim-term-btn py-2 rounded-xl text-xs font-extrabold crimson-grad text-white">1 Yr (12 mos)</button>
-            <button onclick="setSimTerm(24)" id="sim-term-24" class="sim-term-btn py-2 rounded-xl text-xs font-bold bg-cream-100 text-stone-700">2 Yrs (24 mos)</button>
-            <button onclick="setSimTerm(36)" id="sim-term-36" class="sim-term-btn py-2 rounded-xl text-xs font-bold bg-cream-100 text-stone-700">3 Yrs (36 mos)</button>
+      <!-- SUB-TAB 4: NEW LOAN SIMULATOR (LINKED TO EXISTING LOANS, PERSONAL & CO-BORROWER INCOME) -->
+      <main id="trk-tab-simulator" class="hidden px-4 -mt-3 space-y-4">
+        <div class="bg-white rounded-3xl p-5 shadow-xs border border-cream-200 space-y-4">
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-gold-600">Linked to Active Loan &amp; Income</span>
+              <h2 class="text-base font-extrabold text-stone-900">New Loan &amp; Co-Borrower Simulator</h2>
+            </div>
+            <span class="px-2 py-0.5 rounded-lg bg-cream-100 text-crimson-700 text-[10px] font-extrabold">50% Cap</span>
           </div>
-        </div>
 
-        <!-- Loan Amount Slider -->
-        <div>
-          <div class="flex justify-between text-xs font-bold mb-1">
-            <span class="text-stone-600">Requested Amount</span>
-            <span id="sim-amt-label" class="text-sm font-extrabold text-crimson-700">₱25,000.00</span>
-          </div>
-          <input id="sim-amt-slider" type="range" min="0" max="117000" step="1000" value="25000" oninput="updateLoanSim()" class="w-full accent-crimson-600" />
-          <div class="flex justify-between text-[10px] text-stone-400 font-semibold mt-1">
-            <span>Min ₱0.00</span>
-            <span id="sim-max-cap">Max Eligibility: ₱117,000.00</span>
-          </div>
-        </div>
+          <!-- Linked Personal & Co-Borrower Income Card -->
+          <div class="p-3.5 rounded-2xl bg-cream-50 border border-cream-200 space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <label for="sim-personal-income" class="text-stone-700">Your Personal Net Income / mo (₱)</label>
+                <span class="text-[10px] text-stone-400">Synced with Budget</span>
+              </div>
+              <input id="sim-personal-income" type="number" value="45000" step="500" oninput="syncIncomeInputs('personal', this.value)" class="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-extrabold text-stone-900 focus:outline-none focus:ring-2 focus:ring-crimson-600" />
+            </div>
 
-        <!-- Purpose & Co-Maker -->
-        <div class="grid grid-cols-2 gap-2.5 text-xs">
+            <div class="flex items-center justify-between pt-2 border-t border-cream-200">
+              <div>
+                <p class="text-xs font-extrabold text-stone-800">Applying with a Co-Borrower?</p>
+                <p class="text-[10px] text-stone-500">Adds co-borrower income to borrowing limit</p>
+              </div>
+              <div class="inline-flex rounded-xl bg-white p-0.5 border border-cream-200">
+                <button type="button" onclick="setHasCoBorrower(false)" id="sim-coborrower-no" class="px-3 py-1 rounded-lg text-[11px] font-extrabold crimson-grad text-white">No</button>
+                <button type="button" onclick="setHasCoBorrower(true)" id="sim-coborrower-yes" class="px-3 py-1 rounded-lg text-[11px] font-bold text-stone-600">Yes</button>
+              </div>
+            </div>
+
+            <div id="sim-coborrower-box" class="hidden space-y-2.5 pt-2 border-t border-cream-200">
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <label for="sim-coborrower-income" class="text-stone-700">Co-Borrower Net Income / mo (₱)</label>
+                  <span id="sim-total-household-badge" class="text-[11px] font-extrabold text-emerald-700">Total: ₱70,000.00</span>
+                </div>
+                <input id="sim-coborrower-income" type="number" value="25000" step="500" oninput="syncIncomeInputs('coborrower', this.value)" class="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-extrabold text-stone-900 focus:outline-none focus:ring-2 focus:ring-crimson-600" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Linked Existing Commitments -->
+          <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200 text-xs space-y-1.5">
+            <div class="flex justify-between items-center">
+              <span class="font-extrabold text-stone-700">Linked Existing Commitments</span>
+              <span id="sim-existing-status" class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800">Active Loan</span>
+            </div>
+            <div class="flex justify-between text-stone-600">
+              <span>Active Loan (<span id="sim-existing-bal">₱144,000.00</span> bal.)</span>
+              <span id="sim-existing-loan-mo" class="font-bold text-stone-900">-₱10,000.00 / mo</span>
+            </div>
+            <div class="flex justify-between text-stone-600">
+              <span>Other Monthly Expenses / Bills</span>
+              <span id="sim-existing-other-mo" class="font-bold text-stone-900">-₱6,000.00 / mo</span>
+            </div>
+            <div class="flex justify-between pt-1.5 border-t border-stone-200 font-extrabold text-crimson-700">
+              <span>Remaining 50% Monthly Capacity</span>
+              <span id="sim-rem-monthly-cap">₱6,500.00 / mo</span>
+            </div>
+          </div>
+
+          <!-- Loan Product Type & Term -->
           <div>
-            <label class="block font-bold text-stone-500 mb-1">Purpose</label>
-            <select class="w-full rounded-xl border border-stone-200 bg-cream-50 px-2.5 py-2 font-bold text-stone-800">
-              <option>Personal Consumption</option>
-              <option>Home Improvement</option>
-              <option>Medical / Emergency</option>
+            <label class="block text-xs font-bold text-stone-600 mb-1.5">Loan Facility &amp; Term</label>
+            <select id="sim-loan-type" class="w-full mb-2.5 rounded-xl border border-stone-200 bg-cream-50 px-3 py-2 text-xs font-bold text-stone-800">
+              <option value="Personal Multipurpose Loan">Personal Multipurpose Loan</option>
+              <option value="Housing Loan">BPI Housing Loan</option>
+              <option value="Auto Loan">BPI Auto Loan</option>
             </select>
-          </div>
-          <div>
-            <label class="block font-bold text-stone-500 mb-1">Co-Maker</label>
-            <input type="text" value="M. Reyes" class="w-full rounded-xl border border-stone-200 bg-cream-50 px-2.5 py-2 font-bold text-stone-800" />
-          </div>
-        </div>
 
-        <!-- Estimated Semi-Monthly Output Card -->
-        <div class="crimson-grad text-white rounded-2xl p-4 space-y-3">
-          <div class="flex justify-between items-baseline">
-            <span class="text-xs text-cream-200 font-semibold">Est. Semi-Monthly Installment</span>
-            <span id="sim-semi-out" class="text-xl font-extrabold text-gold-300">₱1,125.00</span>
-          </div>
-          <!-- Principal vs Interest Split Bar -->
-          <div>
-            <div class="w-full h-2 rounded-full bg-white/20 overflow-hidden flex">
-              <div id="sim-prin-bar" class="bg-gold-400 h-full" style="width:92%"></div>
-              <div id="sim-int-bar" class="bg-rose-300 h-full" style="width:8%"></div>
-            </div>
-            <div class="flex justify-between text-[11px] mt-1.5 text-cream-100">
-              <span id="sim-prin-txt">Principal: ₱25,000.00</span>
-              <span id="sim-int-txt">Total Interest (8%): ₱2,000.00</span>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="setSimTerm(12)" id="sim-term-12" class="sim-term-btn py-2 rounded-xl text-xs font-extrabold crimson-grad text-white">1 Yr (12 mos)</button>
+              <button onclick="setSimTerm(24)" id="sim-term-24" class="sim-term-btn py-2 rounded-xl text-xs font-bold bg-cream-100 text-stone-700">2 Yrs (24 mos)</button>
+              <button onclick="setSimTerm(36)" id="sim-term-36" class="sim-term-btn py-2 rounded-xl text-xs font-bold bg-cream-100 text-stone-700">3 Yrs (36 mos)</button>
             </div>
           </div>
+
+          <!-- Requested Loan Amount Slider -->
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-stone-600">Requested New Loan Amount</span>
+              <span id="sim-amt-label" class="text-sm font-extrabold text-crimson-700">₱25,000.00</span>
+            </div>
+            <input id="sim-amt-slider" type="range" min="0" max="117000" step="1000" value="25000" oninput="updateLoanSim()" class="w-full accent-crimson-600" />
+            <div class="flex justify-between text-[10px] text-stone-400 font-semibold mt-1">
+              <span>Min ₱0.00</span>
+              <span id="sim-max-cap">Max Eligibility: ₱117,000.00</span>
+            </div>
+          </div>
+
+          <div id="sim-coborrower-name-wrap" class="hidden text-xs">
+            <label class="block font-bold text-stone-500 mb-1">Co-Borrower Full Name</label>
+            <input type="text" value="M. Reyes" class="w-full rounded-xl border border-stone-200 bg-cream-50 px-3 py-2 font-bold text-stone-800" />
+          </div>
+
+          <!-- Output Card -->
+          <div class="crimson-grad text-white rounded-2xl p-4 space-y-3">
+            <div class="flex justify-between items-baseline">
+              <span class="text-xs text-cream-200 font-semibold">Est. New Semi-Monthly Installment</span>
+              <span id="sim-semi-out" class="text-xl font-extrabold text-gold-300">₱1,125.00</span>
+            </div>
+            <div>
+              <div class="w-full h-2 rounded-full bg-white/20 overflow-hidden flex">
+                <div id="sim-prin-bar" class="bg-gold-400 h-full" style="width:92%"></div>
+                <div id="sim-int-bar" class="bg-rose-300 h-full" style="width:8%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] mt-1.5 text-cream-100">
+                <span id="sim-prin-txt">Principal: ₱25,000.00</span>
+                <span id="sim-int-txt">Total Interest (8%): ₱2,000.00</span>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-white/15 flex justify-between items-center text-[11px]">
+              <span class="text-cream-200">Combined Ratio (Existing + New)</span>
+              <span id="sim-combined-ratio" class="font-extrabold text-gold-300">40.6% / 50% Cap</span>
+            </div>
+          </div>
+
+          <label class="flex items-center justify-between p-3 rounded-2xl bg-cream-50 border border-cream-200 cursor-pointer">
+            <span class="text-xs font-bold text-stone-800">Sync simulated loan into Budget &amp; Risk Tab</span>
+            <input id="sim-include-toggle" type="checkbox" checked onchange="recalcBudget()" class="w-4 h-4 accent-crimson-600" />
+          </label>
         </div>
+      </main>
 
-        <!-- Toggle Test in Budget -->
-        <label class="flex items-center justify-between p-3 rounded-2xl bg-cream-50 border border-cream-200 cursor-pointer">
-          <span class="text-xs font-bold text-stone-800">Test impact in Budget & Risk Tracker</span>
-          <input id="sim-include-toggle" type="checkbox" onchange="recalcBudget()" class="w-4 h-4 accent-crimson-600" />
-        </label>
-      </div>
-    </main>
+      <!-- Tracker Bottom Navigation Bar -->
+      <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/95 backdrop-blur-md border-t border-cream-200 px-3 py-2.5 flex justify-around items-center z-[55]">
+        <button onclick="switchTrackerTab('journey')" id="trk-nav-journey" class="trk-nav flex flex-col items-center gap-0.5 text-crimson-700 font-extrabold text-[11px]">
+          <span class="text-base">&#128506;</span>
+          <span>Journey</span>
+        </button>
+        <button onclick="switchTrackerTab('budget')" id="trk-nav-budget" class="trk-nav flex flex-col items-center gap-0.5 text-stone-400 font-semibold text-[11px]">
+          <span class="text-base">&#128202;</span>
+          <span>Budget</span>
+        </button>
+        <button onclick="switchTrackerTab('details')" id="trk-nav-details" class="trk-nav flex flex-col items-center gap-0.5 text-stone-400 font-semibold text-[11px]">
+          <span class="text-base">&#128196;</span>
+          <span>Details</span>
+        </button>
+        <button onclick="switchTrackerTab('simulator')" id="trk-nav-simulator" class="trk-nav flex flex-col items-center gap-0.5 text-stone-400 font-semibold text-[11px]">
+          <span class="text-base">&#129518;</span>
+          <span>Simulator</span>
+        </button>
+      </nav>
+    </div>
 
-    <!-- Bottom Mobile Navigation Bar -->
-    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/95 backdrop-blur-md border-t border-cream-200 px-3 py-2 flex justify-around items-center z-40">
-      <button onclick="switchMobileTab('journey')" id="nav-journey" class="mob-nav flex flex-col items-center gap-0.5 text-crimson-700 font-extrabold text-[11px]">
-        <span class="text-lg">🗺️</span>
-        <span>Journey</span>
-      </button>
-      <button onclick="switchMobileTab('budget')" id="nav-budget" class="mob-nav flex flex-col items-center gap-0.5 text-stone-400 font-semibold text-[11px]">
-        <span class="text-lg">📊</span>
-        <span>Budget</span>
-      </button>
-      <button onclick="switchMobileTab('details')" id="nav-details" class="mob-nav flex flex-col items-center gap-0.5 text-stone-400 font-semibold text-[11px]">
-        <span class="text-lg">📄</span>
-        <span>Details</span>
-      </button>
-      <button onclick="switchMobileTab('simulator')" id="nav-simulator" class="mob-nav flex flex-col items-center gap-0.5 text-stone-400 font-semibold text-[11px]">
-        <span class="text-lg">🧮</span>
-        <span>Simulator</span>
-      </button>
-    </nav>
   </div>
 
   <script>
+    // ===================== BPI SHELL NAVIGATION & DECOYS =====================
+    let balancesVisible = true;
+    let toastTimer = null;
+
+    function triggerDecoy(featureName) {
+      const toast = document.getElementById('decoy-toast');
+      document.getElementById('decoy-toast-msg').textContent =
+        `"${featureName}" is a decoy. Tap Loans or Apply for a Housing/Auto Loan to launch the Loan Journey.`;
+      toast.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    function toggleBalances() {
+      balancesVisible = !balancesVisible;
+      document.querySelectorAll('.bal-val').forEach(el => {
+        if (!el.dataset.real) el.dataset.real = el.textContent;
+        el.textContent = balancesVisible ? el.dataset.real : '••••••';
+      });
+    }
+
+    function switchBpiTab(tabName) {
+      ['accounts', 'movemoney', 'products', 'more'].forEach(t => {
+        document.getElementById('bpi-screen-' + t).classList.toggle('hidden', t !== tabName);
+        const btn = document.getElementById('bpi-nav-' + t);
+        const ind = btn.querySelector('.nav-indicator');
+        if (t === tabName) {
+          btn.classList.remove('text-slate-500', 'font-medium');
+          btn.classList.add('text-[#C83232]', 'font-bold');
+          ind.classList.remove('hidden');
+        } else {
+          btn.classList.add('text-slate-500', 'font-medium');
+          btn.classList.remove('text-[#C83232]', 'font-bold');
+          ind.classList.add('hidden');
+        }
+      });
+    }
+
+    function switchAccountPill(pill) {
+      ['deposits', 'investments', 'cards', 'loans', 'track'].forEach(p => {
+        const el = document.getElementById('pill-' + p);
+        if (p === pill) {
+          el.className = 'acct-pill px-4 py-2 rounded-full text-[13px] font-semibold bg-[#2E3B3E] text-white shrink-0 transition-all flex items-center gap-1.5';
+        } else {
+          el.className = 'acct-pill px-4 py-2 rounded-full text-[13px] font-medium bg-[#E9ECEF] text-[#232B2E] shrink-0 transition-all flex items-center gap-1.5';
+        }
+      });
+
+      document.getElementById('acct-sub-deposits').classList.toggle('hidden', pill !== 'deposits');
+      document.getElementById('acct-sub-loans').classList.toggle('hidden', pill !== 'loans');
+
+      const isDecoyPill = ['investments', 'cards', 'track'].includes(pill);
+      document.getElementById('acct-sub-decoy').classList.toggle('hidden', !isDecoyPill);
+      if (isDecoyPill) {
+        const labels = { investments: 'Investments', cards: 'Cards', track: 'Track & Plan' };
+        document.getElementById('decoy-pill-title').textContent = `No ${labels[pill].toLowerCase()} to display`;
+      }
+    }
+
+    // ===================== LOAN JOURNEY & BUDGET TRACKER =====================
     const ORIGINAL_LOAN = 240000;
     const SEMI_INSTALLMENT = 5000;
     const INSURANCE_PREMIUM = 250;
-    const LATE_FEE_RATE = 0.03; // 3% late payment charge on amortization
-    const ALLOWABLE_THRESHOLD_PCT = 50; // Fixed 50% Allowable Obligation Threshold
+    const LATE_FEE_RATE = 0.03;
+    const ALLOWABLE_THRESHOLD_PCT = 50;
 
-    let paidPrincipal = 96000; // 40% paid initially -> ₱144,000 remaining
+    let paidPrincipal = 96000;
     let historyStack = [];
     let activeBoost = 0;
     let daysLate = 0;
     let simTermMonths = 12;
+    let hasCoBorrower = false;
 
     const php = (n) => '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    function switchMobileTab(tab) {
+    function openLoanTracker(initialTab = 'journey', loanContext = 'Personal Multipurpose Loan') {
+      document.getElementById('tracker-context-label').textContent = `BPI ${loanContext}`;
+      const typeSelect = document.getElementById('sim-loan-type');
+      if (typeSelect) typeSelect.value = loanContext;
+      document.getElementById('loan-journey-overlay').classList.remove('hidden');
+      switchTrackerTab(initialTab);
+      renderJourney();
+      recalcBudget();
+    }
+
+    function closeLoanTracker() {
+      document.getElementById('loan-journey-overlay').classList.add('hidden');
+      syncBpiLoanCardPreview();
+    }
+
+    function syncBpiLoanCardPreview() {
+      const remaining = Math.max(0, ORIGINAL_LOAN - paidPrincipal);
+      const pctPaid = Math.round((paidPrincipal / ORIGINAL_LOAN) * 100);
+      const balStr = Number(remaining).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const balEl = document.getElementById('card-loan-bal');
+      balEl.dataset.real = balStr;
+      balEl.textContent = balancesVisible ? balStr : '••••••';
+      document.getElementById('card-pct-paid').textContent = `${pctPaid}% Paid Off`;
+
+      const isPastDue = daysLate > 0;
+      const dueAmt = isPastDue ? (SEMI_INSTALLMENT + INSURANCE_PREMIUM + SEMI_INSTALLMENT * LATE_FEE_RATE) : (SEMI_INSTALLMENT + INSURANCE_PREMIUM);
+      document.getElementById('card-next-due-amt').textContent = `PHP ${Number(dueAmt).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+
+      const chip = document.getElementById('card-risk-chip');
+      if (isPastDue) {
+        chip.textContent = `Past Due (${daysLate}d) +3%`;
+        chip.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800';
+      } else {
+        chip.textContent = remaining === 0 ? 'Paid Off' : 'Up-to-date';
+        chip.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700';
+      }
+    }
+
+    function switchTrackerTab(tab) {
       ['journey', 'budget', 'details', 'simulator'].forEach(t => {
-        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
-        const btn = document.getElementById('nav-' + t);
+        document.getElementById('trk-tab-' + t).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('trk-nav-' + t);
         btn.classList.toggle('text-crimson-700', t === tab);
         btn.classList.toggle('font-extrabold', t === tab);
         btn.classList.toggle('text-stone-400', t !== tab);
         btn.classList.toggle('font-semibold', t !== tab);
       });
+    }
+
+    function setHasCoBorrower(flag) {
+      hasCoBorrower = flag;
+      const activeCls = 'px-3 py-1 rounded-lg text-[11px] font-extrabold crimson-grad text-white';
+      const inactiveCls = 'px-3 py-1 rounded-lg text-[11px] font-bold text-stone-600';
+
+      document.getElementById('sim-coborrower-yes').className = flag ? activeCls : inactiveCls;
+      document.getElementById('sim-coborrower-no').className = !flag ? activeCls : inactiveCls;
+      document.getElementById('bgt-coborrower-yes').className = flag ? activeCls : inactiveCls;
+      document.getElementById('bgt-coborrower-no').className = !flag ? activeCls : inactiveCls;
+
+      document.getElementById('sim-coborrower-box').classList.toggle('hidden', !flag);
+      document.getElementById('bgt-coborrower-box').classList.toggle('hidden', !flag);
+      document.getElementById('sim-coborrower-name-wrap').classList.toggle('hidden', !flag);
+
+      recalcBudget();
+    }
+
+    function syncIncomeInputs(source, val) {
+      if (source === 'personal') {
+        document.getElementById('inp-monthly-income').value = val;
+        document.getElementById('sim-personal-income').value = val;
+      } else {
+        document.getElementById('inp-coborrower-income').value = val;
+        document.getElementById('sim-coborrower-income').value = val;
+      }
+      recalcBudget();
     }
 
     function toggleBoost(amt) {
@@ -506,7 +1128,7 @@
       if (activeBoost > 0) {
         document.getElementById('boost-' + amt).classList.add('ring-2', 'ring-crimson-600', 'bg-amber-50');
         const newPct = Math.min(100, ((paidPrincipal + activeBoost) / ORIGINAL_LOAN) * 100).toFixed(1);
-        previewEl.textContent = `✨ Adding ${php(activeBoost)} jumps you to ${newPct}% paid off!`;
+        previewEl.textContent = `Adding ${php(activeBoost)} jumps you to ${newPct}% paid off!`;
         previewEl.classList.remove('hidden');
       } else {
         previewEl.classList.add('hidden');
@@ -547,7 +1169,7 @@
       document.getElementById('hdr-outstanding').textContent = php(remaining);
       document.getElementById('det-payoff').textContent = php(remaining * 1.008);
       document.getElementById('pct-paid-label').textContent = pctPaid + '%';
-      document.getElementById('pct-left-badge').textContent = pctLeft === 0 ? '🎉 100% Debt-Free!' : `Only ${pctLeft}% Left to Pay!`;
+      document.getElementById('pct-left-badge').textContent = pctLeft === 0 ? '100% Debt-Free!' : `Only ${pctLeft}% Left to Pay!`;
       document.getElementById('milestone-bar').style.width = pctPaid + '%';
 
       const circumference = 263.89;
@@ -558,7 +1180,7 @@
         { pct: 50, title: 'Halfway Hero', nextPct: 75, nextName: '75% Home Stretch' },
         { pct: 75, title: 'Home Stretch Finisher', nextPct: 90, nextName: '90% Victory Lap' },
         { pct: 90, title: 'Victory Lap Runner', nextPct: 100, nextName: '100% Debt-Free Legend' },
-        { pct: 100, title: 'Debt-Free Legend 🏆', nextPct: 100, nextName: '' }
+        { pct: 100, title: 'Debt-Free Legend', nextPct: 100, nextName: '' }
       ];
       let currentRank = 'Kickoff Starter';
       let nextTarget = milestones[0];
@@ -575,11 +1197,11 @@
       }
 
       const trophies = [
-        { pct: 10, icon: '🌱', label: 'Start' },
-        { pct: 25, icon: '🥉', label: '25%' },
-        { pct: 50, icon: '🥈', label: '50%' },
-        { pct: 75, icon: '🥇', label: '75%' },
-        { pct: 100, icon: '👑', label: 'Free!' }
+        { pct: 10, icon: '&#127793;', label: 'Start' },
+        { pct: 25, icon: '&#129353;', label: '25%' },
+        { pct: 50, icon: '&#129352;', label: '50%' },
+        { pct: 75, icon: '&#129351;', label: '75%' },
+        { pct: 100, icon: '&#128081;', label: 'Free!' }
       ];
       let unlockedCount = 0;
       document.getElementById('trophy-shelf').innerHTML = trophies.map(t => {
@@ -608,7 +1230,7 @@
       document.getElementById('levels-map').innerHTML = levels.map(l => {
         const done = pctPaid >= l.max;
         const active = pctPaid >= l.min && pctPaid < l.max;
-        const badge = done ? 'Completed ✅' : (active ? 'You Are Here 📍' : 'Locked 🔒');
+        const badge = done ? 'Completed' : (active ? 'You Are Here' : 'Locked');
         const cardStyle = done
           ? 'bg-emerald-50/70 border-emerald-200'
           : (active ? 'bg-amber-50 border-gold-500 ring-2 ring-gold-400/40' : 'bg-stone-50 border-stone-200 opacity-70');
@@ -625,6 +1247,7 @@
           <span class="text-[10px] font-extrabold px-2 py-1 rounded-lg bg-white border border-stone-200 text-stone-700">${badge}</span>
         </div>`;
       }).join('');
+      syncBpiLoanCardPreview();
     }
 
     function changeDaysLate(delta) {
@@ -641,9 +1264,9 @@
 
     function updateLatePaymentDisplay() {
       const isPastDue = daysLate > 0;
-      const baseDue = SEMI_INSTALLMENT + INSURANCE_PREMIUM; // ₱5,250.00
-      const lateCharge = SEMI_INSTALLMENT * LATE_FEE_RATE; // 3% of ₱5,000 = ₱150.00 (₱300.00/mo monthly amort equivalent)
-      const totalAfterDueDate = baseDue + lateCharge; // ₱5,400.00
+      const baseDue = SEMI_INSTALLMENT + INSURANCE_PREMIUM;
+      const lateCharge = SEMI_INSTALLMENT * LATE_FEE_RATE;
+      const totalAfterDueDate = baseDue + lateCharge;
       const activePayable = isPastDue ? totalAfterDueDate : baseDue;
 
       document.getElementById('det-days-late').textContent = daysLate;
@@ -679,36 +1302,52 @@
         budgetTag.className = 'px-2 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-100 text-emerald-800';
         hdrStrip.classList.add('hidden');
       }
+      syncBpiLoanCardPreview();
     }
 
     function recalcBudget() {
       updateLatePaymentDisplay();
 
-      const monthlyIncome = Math.max(1000, Number(document.getElementById('inp-monthly-income').value) || 0);
-      const otherMonthly = Math.max(0, Number(document.getElementById('inp-other-obligations').value) || 0);
-      const thresholdPct = ALLOWABLE_THRESHOLD_PCT; // Fixed 50%
+      const personalIncome = Math.max(1000, Number(document.getElementById('inp-monthly-income').value) || 0);
+      const coBorrowerIncome = hasCoBorrower ? Math.max(0, Number(document.getElementById('inp-coborrower-income').value) || 0) : 0;
+      const totalHouseholdIncome = personalIncome + coBorrowerIncome;
 
-      const semiIncome = monthlyIncome / 2;
-      const crlMonthly = monthlyIncome * (thresholdPct / 100);
+      const otherMonthly = Math.max(0, Number(document.getElementById('inp-other-obligations').value) || 0);
+      const thresholdPct = ALLOWABLE_THRESHOLD_PCT;
+
+      const semiIncome = totalHouseholdIncome / 2;
+      const crlMonthly = totalHouseholdIncome * (thresholdPct / 100);
       const maxSemiInstallment = crlMonthly / 2;
 
-      const monthlyLatePenalty = (daysLate > 0 && paidPrincipal < ORIGINAL_LOAN) ? (SEMI_INSTALLMENT * 2 * LATE_FEE_RATE) : 0;
-      const activeLoanMonthly = (paidPrincipal < ORIGINAL_LOAN) ? ((SEMI_INSTALLMENT * 2) + monthlyLatePenalty) : 0;
-      const simInclude = document.getElementById('sim-include-toggle').checked;
-      const simSemi = getSimulatedSemiMonthly();
-      const simMonthly = simInclude ? (simSemi * 2) : 0;
-
-      const totalMonthlyObligations = activeLoanMonthly + otherMonthly + simMonthly;
-      const ratioPct = (totalMonthlyObligations / monthlyIncome) * 100;
-      const remainingMonthlyCap = Math.max(0, crlMonthly - totalMonthlyObligations);
-      const maxEligibility = Math.round(remainingMonthlyCap * 18);
+      const remainingLoanBal = Math.max(0, ORIGINAL_LOAN - paidPrincipal);
+      const isLoanActive = remainingLoanBal > 0;
+      const monthlyLatePenalty = (daysLate > 0 && isLoanActive) ? (SEMI_INSTALLMENT * 2 * LATE_FEE_RATE) : 0;
+      const activeLoanMonthly = isLoanActive ? ((SEMI_INSTALLMENT * 2) + monthlyLatePenalty) : 0;
 
       document.getElementById('lbl-semi-income').textContent = `Semi-Monthly: ${php(semiIncome)}`;
-      document.getElementById('val-max-eligibility').textContent = php(maxEligibility);
-      document.getElementById('val-max-semi').textContent = php(maxSemiInstallment);
-      document.getElementById('val-crl').textContent = php(crlMonthly);
-      document.getElementById('val-ratio').textContent = ratioPct.toFixed(1) + '%';
-      document.getElementById('val-ratio-sub').textContent = `Limit: ${thresholdPct}%`;
+      document.getElementById('lbl-combined-income').textContent = `Combined: ${php(totalHouseholdIncome)}`;
+      document.getElementById('sim-total-household-badge').textContent = `Total: ${php(totalHouseholdIncome)}`;
+      document.getElementById('sim-existing-bal').textContent = php(remainingLoanBal);
+      document.getElementById('sim-existing-loan-mo').textContent = `-${php(activeLoanMonthly)} / mo`;
+      document.getElementById('sim-existing-other-mo').textContent = `-${php(otherMonthly)} / mo`;
+
+      const statusChip = document.getElementById('sim-existing-status');
+      if (!isLoanActive) {
+        statusChip.textContent = 'Paid Off';
+        statusChip.className = 'px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-100 text-emerald-800';
+      } else if (daysLate > 0) {
+        statusChip.textContent = 'Past Due (+3%)';
+        statusChip.className = 'px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-100 text-rose-800';
+      } else {
+        statusChip.textContent = 'Active Loan';
+        statusChip.className = 'px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800';
+      }
+
+      const baseObligations = activeLoanMonthly + otherMonthly;
+      const remainingMonthlyCap = Math.max(0, crlMonthly - baseObligations);
+      const maxEligibility = Math.round(remainingMonthlyCap * 18);
+
+      document.getElementById('sim-rem-monthly-cap').textContent = `${php(remainingMonthlyCap)} / mo`;
 
       const slider = document.getElementById('sim-amt-slider');
       slider.max = maxEligibility;
@@ -716,33 +1355,44 @@
       document.getElementById('sim-max-cap').textContent = `Max Eligibility: ${php(maxEligibility)}`;
       updateLoanSim(false);
 
+      const simInclude = document.getElementById('sim-include-toggle').checked;
+      const simSemi = getSimulatedSemiMonthly();
+      const simMonthly = simInclude ? (simSemi * 2) : 0;
+
+      const totalMonthlyObligations = baseObligations + simMonthly;
+      const ratioPct = (totalMonthlyObligations / totalHouseholdIncome) * 100;
+
+      document.getElementById('val-max-eligibility').textContent = php(maxEligibility);
+      document.getElementById('val-max-semi').textContent = php(maxSemiInstallment);
+      document.getElementById('val-crl').textContent = php(crlMonthly);
+      document.getElementById('val-ratio').textContent = ratioPct.toFixed(1) + '%';
+      document.getElementById('val-ratio-sub').textContent = `Limit: ${thresholdPct}%`;
+      document.getElementById('sim-combined-ratio').textContent = `${((baseObligations + (simSemi * 2)) / totalHouseholdIncome * 100).toFixed(1)}% / 50% Cap`;
+
       const banner = document.getElementById('risk-banner');
       const headerPill = document.getElementById('header-risk-pill');
       const detBadge = document.getElementById('det-status-badge');
 
       if (daysLate > 0 || ratioPct > thresholdPct) {
         banner.className = 'rounded-2xl p-4 border shadow-xs bg-rose-50 border-rose-300 text-rose-950';
-        document.getElementById('risk-icon').textContent = '🚨';
         document.getElementById('risk-title').textContent = daysLate > 0 ? 'Past Due — 3% Late Charge Active' : 'High Delinquency Risk Flagged';
         document.getElementById('risk-desc').textContent = daysLate > 0
           ? `Account is ${daysLate} day(s) past due. A 3% late payment charge (+₱150.00/cutoff; +₱300.00/mo) applies, bringing Total Amount Due After Due Date to ₱5,400.00.`
-          : `Obligation ratio (${ratioPct.toFixed(1)}%) exceeds the fixed ${thresholdPct}% allowable threshold.`;
+          : `Combined obligation ratio (${ratioPct.toFixed(1)}%) exceeds the fixed ${thresholdPct}% allowable threshold.`;
         headerPill.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/30 text-rose-100 border border-rose-300/40 flex items-center gap-1.5';
         headerPill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-300 animate-ping"></span><span>' + (daysLate > 0 ? 'Past Due' : 'High Risk') + '</span>';
         detBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300';
         detBadge.textContent = daysLate > 0 ? `Past Due (${daysLate}d) +3%` : 'Over Limit';
       } else if (ratioPct >= thresholdPct - 5) {
         banner.className = 'rounded-2xl p-4 border shadow-xs bg-amber-50 border-amber-300 text-amber-950';
-        document.getElementById('risk-icon').textContent = '⚠️';
         document.getElementById('risk-title').textContent = 'Moderate Risk — Near 50% Limit';
-        document.getElementById('risk-desc').textContent = `Your obligations (${ratioPct.toFixed(1)}%) are approaching the fixed ${thresholdPct}% cap.`;
+        document.getElementById('risk-desc').textContent = `Combined obligations (${ratioPct.toFixed(1)}%) are approaching the fixed ${thresholdPct}% cap.`;
         headerPill.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-400/25 text-amber-100 border border-amber-300/40 flex items-center gap-1.5';
         headerPill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-300"></span><span>Near Limit</span>';
         detBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
         detBadge.textContent = 'Up-to-date';
       } else {
         banner.className = 'rounded-2xl p-4 border shadow-xs bg-emerald-50 border-emerald-200 text-emerald-900';
-        document.getElementById('risk-icon').textContent = '✅';
         document.getElementById('risk-title').textContent = 'Healthy Borrowing Capacity';
         document.getElementById('risk-desc').textContent = `Obligation ratio (${ratioPct.toFixed(1)}%) is safely below the fixed ${thresholdPct}% allowable threshold.`;
         headerPill.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5';
@@ -785,9 +1435,7 @@
       document.getElementById('sim-prin-bar').style.width = prinPct + '%';
       document.getElementById('sim-int-bar').style.width = (100 - prinPct) + '%';
 
-      if (triggerBudget && document.getElementById('sim-include-toggle').checked) {
-        recalcBudget();
-      }
+      if (triggerBudget) recalcBudget();
     }
 
     function launchConfetti() {
@@ -820,5 +1468,5 @@
     renderJourney();
     recalcBudget();
   </script>
-</body>
 </html>
+</body>
