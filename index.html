@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>BPI Mobile — Accounts & Loan Journey</title>
+  <title>BPI Mobile — Accounts, Loan Journey & Collections Support</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -53,30 +53,38 @@
 
   <div class="phone-frame overflow-x-hidden">
     <!-- Confetti Canvas -->
-    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-[80]" style="max-width:430px;margin:0 auto;"></canvas>
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-[95]" style="max-width:430px;margin:0 auto;"></canvas>
 
-    <!-- Decoy Toast Banner -->
-    <div id="decoy-toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[70] hidden max-w-[380px] w-[90%] bg-[#2E3B3E] text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg border border-white/10 flex items-center gap-2.5">
+    <!-- Notification / Toast Banner -->
+    <div id="decoy-toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[90] hidden max-w-[380px] w-[90%] bg-[#2E3B3E] text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg border border-white/10 flex items-center gap-2.5">
       <span class="w-2 h-2 rounded-full bg-[#C83232] shrink-0"></span>
-      <span id="decoy-toast-msg">This feature is a decoy. Tap Loans or Apply for a Loan to open your Loan Journey.</span>
+      <span id="decoy-toast-msg">Notification</span>
     </div>
 
     <!-- =================================================================== -->
     <!-- BPI SCREEN 1: ACCOUNTS / HOME (DEPOSITS, INVESTMENTS, CARDS, LOANS) -->
     <!-- =================================================================== -->
     <section id="bpi-screen-accounts" class="pt-6 px-5 space-y-5">
-      <!-- Greeting Header -->
+      <!-- Greeting Header + Accessible Help / Contact BPI Button -->
       <div class="flex items-start justify-between">
         <div>
           <p class="text-[14px] text-slate-500 font-normal">Good afternoon,</p>
           <h1 class="text-[22px] font-bold text-[#232B2E] tracking-tight leading-tight mt-0.5">Bea</h1>
         </div>
-        <button onclick="triggerDecoy('Inbox & Advisories')" class="p-2 text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors" aria-label="Messages">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-            <rect x="3" y="5" width="18" height="14" rx="2" />
-            <path d="M3 7l9 6 9-6" />
-          </svg>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="openSupportSheet('general')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-slate-200/90 shadow-2xs text-[12px] font-bold text-[#148287] hover:bg-teal-50/50 transition-colors" aria-label="Help and Contact BPI">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Help / Contact BPI</span>
+          </button>
+          <button onclick="triggerDecoy('Inbox & Advisories')" class="p-2 text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors" aria-label="Messages">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="M3 7l9 6 9-6" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- Daily Updates Banner -->
@@ -115,13 +123,18 @@
 
       <!-- SUB-VIEW A: DEPOSITS -->
       <div id="acct-sub-deposits" class="space-y-3.5">
-        <h2 class="text-[17px] font-bold text-[#232B2E]">Deposits</h2>
+        <div class="flex items-center justify-between">
+          <h2 class="text-[17px] font-bold text-[#232B2E]">Deposits</h2>
+          <button onclick="addDemoFunds()" class="text-[11px] font-bold text-[#148287] bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200/70">
+            + Top Up ₱10,000 (Demo)
+          </button>
+        </div>
 
         <div onclick="triggerDecoy('Payroll Account Transactions')" class="bpi-card p-4 cursor-pointer active:scale-[0.99] transition-transform">
           <p class="text-[13px] font-bold uppercase tracking-wide text-[#232B2E]">PAYROLL ACCOUNT</p>
           <p class="text-[13px] text-slate-500 mt-0.5">3729745668</p>
           <div class="text-right mt-3">
-            <p class="text-[15px] text-slate-600">PHP <span class="bal-val font-bold text-[#232B2E] text-[18px]">0.00</span></p>
+            <p class="text-[15px] text-slate-600">PHP <span id="payroll-bal-display" class="bal-val font-bold text-[#232B2E] text-[18px]">0.00</span></p>
             <p class="text-[11px] text-slate-400">Available balance</p>
           </div>
         </div>
@@ -130,7 +143,7 @@
           <p class="text-[13px] font-bold uppercase tracking-wide text-[#232B2E]">SAVINGS ACCOUNT</p>
           <p class="text-[13px] text-slate-500 mt-0.5">4019022138</p>
           <div class="text-right mt-3">
-            <p class="text-[15px] text-slate-600">PHP <span class="bal-val font-bold text-[#232B2E] text-[18px]">0.00</span></p>
+            <p class="text-[15px] text-slate-600">PHP <span id="savings-bal-display" class="bal-val font-bold text-[#232B2E] text-[18px]">0.00</span></p>
             <p class="text-[11px] text-slate-400">Available balance</p>
           </div>
         </div>
@@ -143,11 +156,11 @@
           <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-[#C83232]">1 Active Loan</span>
         </div>
 
-        <!-- Active Loan Summary Card (Full Access: Journey, Budget, Details, Simulator) -->
-        <div onclick="openLoanTracker('journey', 'Personal Multipurpose Loan', 'accounts', false)" class="bpi-card p-4 cursor-pointer border-l-4 border-l-[#C83232] active:scale-[0.99] transition-transform">
+        <!-- Active Loan Summary Card (Motorcycle Loan) -->
+        <div onclick="openLoanTracker('journey', 'Motorcycle Loan', 'accounts', false)" class="bpi-card p-4 cursor-pointer border-l-4 border-l-[#C83232] active:scale-[0.99] transition-transform">
           <div class="flex items-start justify-between">
             <div>
-              <p class="text-[13px] font-bold uppercase tracking-wide text-[#232B2E]">MULTIPURPOSE LOAN</p>
+              <p class="text-[13px] font-bold uppercase tracking-wide text-[#232B2E]">MOTORCYCLE LOAN</p>
               <p class="text-[12px] text-slate-500 mt-0.5">LN-2025-884120 &bull; <span id="card-pct-paid" class="font-bold text-[#C83232]">40% Paid Off</span></p>
             </div>
             <span id="card-risk-chip" class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700">Up-to-date</span>
@@ -165,21 +178,44 @@
           </div>
 
           <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[12px] font-bold text-[#148287]">
-            <span>Open Loan Journey, Budget &amp; Past-Due Tracker</span>
+            <span>Open Loan Journey, Catch-Up &amp; Relief Options</span>
             <span>&rarr;</span>
           </div>
         </div>
 
+        <!-- Intuitive Quick-Access Card for Designated Collections Officer & Flexible Options -->
+        <div class="bpi-card p-4 space-y-3 bg-white">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#2E3B3E] text-white font-bold text-xs flex items-center justify-center shrink-0">
+                PS
+              </div>
+              <div>
+                <p class="text-xs font-bold text-[#232B2E]">Need help with payments?</p>
+                <p class="text-[11px] text-slate-500">Patricia Santos &bull; Designated Collections Officer</p>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="openSupportSheet('collections')" class="py-2 px-3 rounded-xl bg-[#2E3B3E] text-white text-[11px] font-bold">
+              Ask Collections Officer
+            </button>
+            <button onclick="openReliefSheet()" class="py-2 px-3 rounded-xl bg-teal-50 border border-teal-200 text-[#148287] text-[11px] font-bold">
+              Flexible Payment Plan
+            </button>
+          </div>
+        </div>
+
         <!-- Empty-State Illustration + Apply for a loan link -->
-        <div class="pt-3 pb-2 text-center space-y-2.5">
-          <div class="w-24 h-20 mx-auto rounded-2xl bg-slate-200/60 flex items-center justify-center text-slate-400">
-            <svg class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <div class="pt-1 pb-2 text-center space-y-2">
+          <div class="w-16 h-14 mx-auto rounded-2xl bg-slate-200/60 flex items-center justify-center text-slate-400">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
               <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <p class="text-[15px] font-bold text-[#232B2E]">Looking for another loan?</p>
-          <button onclick="openLoanTracker('simulator', 'Personal Multipurpose Loan', 'accounts', false)" class="text-[13px] font-semibold text-[#148287] underline underline-offset-4">
-            Apply for a loan
+          <p class="text-[14px] font-bold text-[#232B2E]">Looking for another loan?</p>
+          <button onclick="openLoanTracker('simulator', 'Motorcycle Loan', 'accounts', false)" class="text-[13px] font-semibold text-[#148287] underline underline-offset-4">
+            Simulate Motorcycle, Auto, or Housing Loan
           </button>
         </div>
       </div>
@@ -274,11 +310,14 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- BPI SCREEN 3: PRODUCTS (Housing & Auto Loan -> Simulator-Only Mode) -->
+    <!-- BPI SCREEN 3: PRODUCTS (Motorcycle, Auto, & Housing Loan Only)      -->
     <!-- =================================================================== -->
     <section id="bpi-screen-products" class="hidden pt-6 px-5 space-y-4">
-      <div class="pb-1">
+      <div class="flex items-center justify-between pb-1">
         <h1 class="text-[22px] font-bold text-[#232B2E] tracking-tight">Products</h1>
+        <button onclick="openSupportSheet('sales')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-slate-200/90 shadow-2xs text-[12px] font-bold text-[#148287]">
+          <span>Ask Loan Sales</span>
+        </button>
       </div>
 
       <div class="space-y-3">
@@ -310,21 +349,21 @@
           <p class="text-[15px] font-bold text-[#232B2E]">Apply for a credit card</p>
         </div>
 
-        <!-- ACTIVE LOAN BUTTON 1: APPLY FOR A HOUSING LOAN -> SIMULATOR ONLY + BACK TO PRODUCTS -->
-        <div onclick="openLoanTracker('simulator', 'Housing Loan', 'products', true)" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
+        <!-- ACTIVE LOAN BUTTON 1: APPLY FOR A MOTORCYCLE LOAN -->
+        <div onclick="openLoanTracker('simulator', 'Motorcycle Loan', 'products', true)" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
           <div class="flex items-center gap-4">
-            <div class="w-11 h-11 rounded-xl bg-rose-50 text-[#C83232] flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" /></svg>
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="6.5" cy="16.5" r="3" /><circle cx="17.5" cy="16.5" r="3" /><path d="M6.5 16.5L10 10h4l3.5 6.5M10 10l-1-3h3" /></svg>
             </div>
             <div>
-              <p class="text-[15px] font-bold text-[#232B2E]">Apply for a housing loan</p>
-              <p class="text-[11px] font-semibold text-[#C83232]">Simulate eligibility &amp; apply</p>
+              <p class="text-[15px] font-bold text-[#232B2E]">Apply for a motorcycle loan</p>
+              <p class="text-[11px] font-semibold text-amber-700">Simulate eligibility &amp; apply</p>
             </div>
           </div>
           <span class="text-slate-400 font-bold">&rsaquo;</span>
         </div>
 
-        <!-- ACTIVE LOAN BUTTON 2: APPLY FOR AN AUTO LOAN -> SIMULATOR ONLY + BACK TO PRODUCTS -->
+        <!-- ACTIVE LOAN BUTTON 2: APPLY FOR AN AUTO LOAN -->
         <div onclick="openLoanTracker('simulator', 'Auto Loan', 'products', true)" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
           <div class="flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
@@ -333,6 +372,20 @@
             <div>
               <p class="text-[15px] font-bold text-[#232B2E]">Apply for an auto loan</p>
               <p class="text-[11px] font-semibold text-emerald-700">Simulate eligibility &amp; apply</p>
+            </div>
+          </div>
+          <span class="text-slate-400 font-bold">&rsaquo;</span>
+        </div>
+
+        <!-- ACTIVE LOAN BUTTON 3: APPLY FOR A HOUSING LOAN -->
+        <div onclick="openLoanTracker('simulator', 'Housing Loan', 'products', true)" class="bpi-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-transform">
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-rose-50 text-[#C83232] flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" /></svg>
+            </div>
+            <div>
+              <p class="text-[15px] font-bold text-[#232B2E]">Apply for a housing loan</p>
+              <p class="text-[11px] font-semibold text-[#C83232]">Simulate eligibility &amp; apply</p>
             </div>
           </div>
           <span class="text-slate-400 font-bold">&rsaquo;</span>
@@ -481,22 +534,33 @@
     <!-- =================================================================== -->
     <div id="loan-journey-overlay" class="fixed inset-0 z-50 hidden flex flex-col bg-[#F7F8FA]" style="max-width:430px;margin:0 auto;">
       
-      <!-- Top Header ("Back to Home" or "Back to Products") -->
+      <!-- Top Header ("Back to Home" or "Back to Products" + Help / Contact BPI Button) -->
       <header class="shrink-0 bg-white border-b border-slate-200/80 px-5 pt-4 pb-4 z-20">
         <div class="flex items-center justify-between mb-2.5">
           <button onclick="closeLoanTracker()" class="inline-flex items-center gap-1.5 text-[#148287] text-[13px] font-bold hover:opacity-80 transition-opacity">
             <span>&larr;</span>
             <span id="tracker-back-label">Back to Home</span>
           </button>
-          <div id="header-risk-pill" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Low Risk</span>
+
+          <div class="flex items-center gap-2">
+            <!-- Accessible Help / Contact BPI Button -->
+            <button onclick="openSupportSheet(isSimulatorOnlyMode ? 'sales' : 'collections')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F7F8FA] border border-slate-200 text-[11px] font-bold text-[#148287] hover:bg-teal-50/70 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+              </svg>
+              <span>Help / Contact BPI</span>
+            </button>
+
+            <div id="header-risk-pill" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Low Risk</span>
+            </div>
           </div>
         </div>
 
         <div class="flex items-end justify-between">
           <div>
-            <p id="tracker-context-label" class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">BPI Loan Portal</p>
+            <p id="tracker-context-label" class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">BPI Motorcycle Loan</p>
             <h1 id="tracker-main-title" class="text-[20px] font-bold text-[#232B2E] tracking-tight mt-0.5">Loan Journey &amp; Budget</h1>
           </div>
           <div id="hdr-existing-loan-box" class="text-right">
@@ -505,23 +569,35 @@
           </div>
         </div>
 
-        <!-- Past-Due Alert Strip (Hidden in Simulator-Only Mode) -->
-        <div id="hdr-pastdue-strip" class="hidden mt-3 bg-rose-50 border border-rose-200 rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-[#C83232] animate-ping"></span>
-            <div>
-              <p class="font-bold text-[#C83232]">Past Due (<span id="hdr-late-days">0</span>d) &bull; +3% Charge</p>
-              <p class="text-[11px] text-slate-700">Due After Cutoff: <strong id="hdr-after-due-amt" class="text-[#232B2E]">PHP 5,400.00</strong></p>
+        <!-- Past-Due Action Strip with Dynamic 3% / 6% Rate, Instant Catch-Up & Relief Access -->
+        <div id="hdr-pastdue-strip" class="hidden mt-3 bg-rose-50 border border-rose-200 rounded-xl p-3 space-y-2.5">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#C83232] animate-ping shrink-0"></span>
+              <div>
+                <p class="font-bold text-[#C83232]">Past Due (<span id="hdr-late-days">0</span>d) &bull; +<span id="hdr-late-pct">3</span>% Charge (<span id="hdr-late-months">1</span> mo.)</p>
+                <p class="text-[11px] text-slate-700">Total Due: <strong id="hdr-after-due-amt" class="text-[#232B2E]">PHP 5,400.00</strong></p>
+              </div>
             </div>
+            <button onclick="openCatchUpModal()" class="px-3 py-1.5 rounded-lg bg-[#C83232] text-white font-bold text-[11px] shadow-2xs">
+              Instant Catch-Up
+            </button>
           </div>
-          <button onclick="switchTrackerTab('details')" class="px-2.5 py-1 rounded-lg bg-[#C83232] text-white font-bold text-[11px]">Inspect</button>
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-rose-200/70">
+            <button onclick="openSupportSheet('collections')" class="py-1.5 px-2.5 rounded-lg bg-white border border-rose-200 text-[#232B2E] font-bold text-[11px] flex items-center justify-center gap-1">
+              <span>Ask Collections Officer</span>
+            </button>
+            <button onclick="openReliefSheet()" class="py-1.5 px-2.5 rounded-lg bg-[#2E3B3E] text-white font-bold text-[11px] flex items-center justify-center gap-1">
+              <span>Request Flexible Plan</span>
+            </button>
+          </div>
         </div>
       </header>
 
       <!-- SCROLLABLE BODY AREA -->
       <div id="tracker-scroll-area" class="flex-1 overflow-y-auto px-5 pt-4 pb-8 space-y-4">
 
-        <!-- SUB-TAB 1: JOURNEY (Accessible from Home -> Loans only) -->
+        <!-- SUB-TAB 1: JOURNEY -->
         <main id="trk-tab-journey" class="space-y-4">
           <div class="bpi-card p-5 relative overflow-hidden">
             <div class="flex items-center justify-between gap-3.5">
@@ -552,6 +628,15 @@
                   PHP 24,000.00 more unlocks <strong class="text-emerald-700">50% Halfway Hero</strong>!
                 </p>
               </div>
+            </div>
+
+            <!-- Active Relief Plan Badge (Shown once submitted) -->
+            <div id="active-relief-banner" class="hidden mt-3.5 p-3 rounded-xl bg-teal-50 border border-teal-200 text-xs flex items-center justify-between">
+              <div>
+                <p class="font-bold text-[#148287]">Flexible Relief Request Submitted</p>
+                <p id="active-relief-summary" class="text-[11px] text-slate-600 mt-0.5">Term Extension • Under Credit Officer Review</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-white text-[#148287] font-bold text-[10px] border border-teal-200">Pending</span>
             </div>
 
             <div class="mt-4 pt-3.5 border-t border-slate-100">
@@ -597,6 +682,28 @@
             </div>
           </div>
 
+          <!-- Intuitive Quick Recovery & Designated Collections Officer Hub -->
+          <div class="bpi-card p-4 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-bold uppercase tracking-wider text-[#232B2E]">Payment Assistance &amp; Collections</p>
+              <span class="text-[10px] font-bold text-[#148287]">Officer Patricia Santos</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="openCatchUpModal()" class="p-2.5 rounded-xl bg-rose-50 border border-rose-200/80 text-center hover:bg-rose-100/60 transition-colors">
+                <span class="block text-[11px] font-extrabold text-[#C83232]">Instant Cure</span>
+                <span class="block text-[10px] text-slate-600 mt-0.5">Full / Partial</span>
+              </button>
+              <button onclick="openSupportSheet('collections')" class="p-2.5 rounded-xl bg-[#F7F8FA] border border-slate-200 text-center hover:bg-slate-100 transition-colors">
+                <span class="block text-[11px] font-extrabold text-[#232B2E]">Ask Officer</span>
+                <span class="block text-[10px] text-slate-500 mt-0.5">Call / Message</span>
+              </button>
+              <button onclick="openReliefSheet()" class="p-2.5 rounded-xl bg-teal-50 border border-teal-200/80 text-center hover:bg-teal-100/60 transition-colors">
+                <span class="block text-[11px] font-extrabold text-[#148287]">Relief Plan</span>
+                <span class="block text-[10px] text-slate-600 mt-0.5">Flexible Terms</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Trophy Shelf -->
           <div class="bpi-card p-4">
             <div class="flex items-center justify-between mb-2.5">
@@ -619,11 +726,22 @@
           </div>
         </main>
 
-        <!-- SUB-TAB 2: BUDGET (Accessible from Home -> Loans only) -->
+        <!-- SUB-TAB 2: BUDGET -->
         <main id="trk-tab-budget" class="hidden space-y-4">
-          <div id="risk-banner" class="bpi-card p-4 border-l-4 border-l-emerald-600">
-            <h3 id="risk-title" class="text-xs font-bold uppercase tracking-wider text-emerald-700">Healthy Borrowing Capacity</h3>
-            <p id="risk-desc" class="text-xs text-slate-600 mt-1 leading-relaxed">Your total financial obligations are safely below the fixed 50% allowable threshold.</p>
+          <div id="risk-banner" class="bpi-card p-4 border-l-4 border-l-emerald-600 space-y-2.5">
+            <div>
+              <h3 id="risk-title" class="text-xs font-bold uppercase tracking-wider text-emerald-700">Healthy Borrowing Capacity</h3>
+              <p id="risk-desc" class="text-xs text-slate-600 mt-1 leading-relaxed">Your total financial obligations are safely below the fixed 50% allowable threshold.</p>
+            </div>
+            <!-- Unlocked Relief & Collections Officer Buttons when Past Due or High Delinquency Risk -->
+            <div id="budget-relief-actions" class="hidden pt-2 border-t border-rose-200/80 grid grid-cols-2 gap-2">
+              <button onclick="openReliefSheet()" class="py-2 px-3 rounded-xl bg-[#C83232] text-white font-bold text-[11px]">
+                Flexible Payment Options
+              </button>
+              <button onclick="openSupportSheet('collections')" class="py-2 px-3 rounded-xl bg-[#2E3B3E] text-white font-bold text-[11px]">
+                Ask Collections Officer
+              </button>
+            </div>
           </div>
 
           <div class="bpi-card p-5 space-y-4">
@@ -701,11 +819,12 @@
               </div>
             </div>
 
+            <!-- Days Past Due Date (+3% per 30-day cycle: 3% at 1-30d, 6% starting at 31-60d) -->
             <div class="pt-3 border-t border-slate-100 space-y-2.5">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-xs font-bold text-[#232B2E]">Days Past Due Date</p>
-                  <p class="text-[11px] text-slate-500">Triggers +3% late charge on amortization</p>
+                  <p class="text-[11px] text-slate-500">+3% every 30 days (Day 1–30: 3%, Day 31–60: 6%)</p>
                 </div>
                 <div class="flex items-center gap-2">
                   <button onclick="changeDaysLate(-1)" class="w-8 h-8 rounded-full bg-[#E9ECEF] font-bold text-[#232B2E]">-</button>
@@ -714,9 +833,17 @@
                 </div>
               </div>
 
+              <!-- Quick Day Presets to Test 3% vs 6% -->
+              <div class="flex items-center gap-1.5">
+                <button onclick="setDaysLate(15)" class="px-2.5 py-1 rounded-lg bg-[#E9ECEF] text-[10px] font-bold text-[#232B2E]">15d (3%)</button>
+                <button onclick="setDaysLate(31)" class="px-2.5 py-1 rounded-lg bg-[#E9ECEF] text-[10px] font-bold text-[#232B2E]">31d (6%)</button>
+                <button onclick="setDaysLate(60)" class="px-2.5 py-1 rounded-lg bg-[#E9ECEF] text-[10px] font-bold text-[#232B2E]">60d (6%)</button>
+                <button onclick="setDaysLate(0)" class="ml-auto px-2.5 py-1 rounded-lg bg-slate-100 text-[10px] font-bold text-slate-500">Reset</button>
+              </div>
+
               <div class="p-3 rounded-xl bg-[#F7F8FA] border border-slate-200/80 text-xs flex justify-between items-center">
                 <div>
-                  <span class="text-slate-500 block text-[10px] uppercase font-bold">Total Due After Due Date (+3%)</span>
+                  <span id="budget-after-due-label" class="text-slate-500 block text-[10px] uppercase font-bold">Total Due After Due Date (+3%)</span>
                   <strong id="budget-after-due" class="text-sm font-extrabold text-[#232B2E]">₱5,400.00</strong>
                 </div>
                 <span id="budget-late-status-tag" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">On Time (₱0 Penalty)</span>
@@ -725,7 +852,7 @@
           </div>
         </main>
 
-        <!-- SUB-TAB 3: DETAILS & 3% LATE FEE BREAKDOWN (Accessible from Home -> Loans only) -->
+        <!-- SUB-TAB 3: DETAILS, INSTANT CATCH-UP & RELIEF OPTIONS -->
         <main id="trk-tab-details" class="hidden space-y-4">
           <div class="bpi-card p-5 space-y-3">
             <div class="flex items-center justify-between">
@@ -758,7 +885,7 @@
               <div class="flex justify-between"><span class="text-slate-500">Insurance Premium</span><span class="font-bold text-[#232B2E]">₱250.00</span></div>
               <div class="flex justify-between"><span class="text-slate-500">Days Past Due</span><span id="det-days-late" class="font-bold text-[#232B2E]">0</span></div>
               <div class="flex justify-between">
-                <span class="text-slate-500">3% Late Payment Charge <span class="text-[10px] text-slate-400">(on ₱5,000 amort.)</span></span>
+                <span id="det-late-rate-label" class="text-slate-500">3% Late Payment Charge <span class="text-[10px] text-slate-400">(+3% per 30d)</span></span>
                 <span id="det-late-fee" class="font-bold text-slate-400">₱0.00 (Inactive)</span>
               </div>
 
@@ -768,16 +895,38 @@
                   <span id="det-current-payable" class="font-extrabold text-[#232B2E] text-sm">₱5,250.00</span>
                 </div>
                 <div class="flex justify-between items-center text-xs pt-1.5 border-t border-amber-200/80">
-                  <span class="font-bold text-[#232B2E]">Total Amount Due After Due Date (+3%)</span>
+                  <span id="det-after-due-label" class="font-bold text-[#232B2E]">Total Amount Due After Due Date (+3%)</span>
                   <span id="det-after-due-total" class="font-extrabold text-[#C83232] text-sm">₱5,400.00</span>
                 </div>
-                <p class="text-[10px] text-slate-500">Includes ₱150.00 (3% of ₱5,000.00 semi-monthly amortization; ₱300.00/mo full monthly equivalent) if unpaid after due date.</p>
+                <p id="det-after-due-note" class="text-[10px] text-slate-500">Includes ₱150.00 (3% of ₱5,000.00 semi-monthly amortization). Starting Day 31, an additional +3% (6% total = ₱300.00) applies every 30 days.</p>
               </div>
             </div>
 
-            <button onclick="togglePastDueDemo()" id="btn-pastdue-toggle" class="w-full py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 text-[#C83232] font-bold text-xs">
-              Simulate Past Due (+5 Days Late)
-            </button>
+            <!-- Instant Catch-Up Payment & Designated Collections Officer Buttons -->
+            <div class="pt-1 space-y-2">
+              <button onclick="openCatchUpModal()" class="w-full py-3 px-4 rounded-xl bg-[#C83232] hover:bg-[#A62323] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5">
+                <span>Instant Catch-Up / Partial Cure Payment</span>
+                <span>&rarr;</span>
+              </button>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="openSupportSheet('collections')" class="py-2.5 px-3 rounded-xl bg-[#2E3B3E] text-white font-bold text-[11px]">
+                  Ask Collections Officer
+                </button>
+                <button onclick="openReliefSheet()" class="py-2.5 px-3 rounded-xl bg-teal-50 border border-teal-200 text-[#148287] font-bold text-[11px]">
+                  Flexible Payment Plan
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="setDaysLate(15)" class="py-2 px-3 rounded-xl border border-slate-200 bg-[#F7F8FA] text-slate-600 font-semibold text-[11px]">
+                  Test 15d Late (+3%)
+                </button>
+                <button onclick="setDaysLate(35)" class="py-2 px-3 rounded-xl border border-slate-200 bg-[#F7F8FA] text-slate-600 font-semibold text-[11px]">
+                  Test 35d Late (+6%)
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="space-y-2.5">
@@ -785,6 +934,7 @@
               <summary class="text-xs font-bold uppercase tracking-wider text-[#232B2E] cursor-pointer">Loan Details</summary>
               <div class="mt-3 space-y-2 text-xs border-t border-slate-100 pt-3">
                 <div class="flex justify-between"><span class="text-slate-500">Account Number</span><span class="font-mono font-bold">LN-2025-884120</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Loan Facility</span><span class="font-bold">BPI Motorcycle Loan</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">Loan Amount</span><span class="font-bold">₱240,000.00</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">Term</span><span class="font-bold">48 Cutoffs (24 Months)</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">Payoff Amount</span><span id="det-payoff" class="font-bold text-[#C83232]">₱145,120.00</span></div>
@@ -803,7 +953,7 @@
           </div>
         </main>
 
-        <!-- SUB-TAB 4: NEW LOAN SIMULATOR + DIRECT "PROCEED TO BPI APPLICATION" CTA -->
+        <!-- SUB-TAB 4: NEW LOAN SIMULATOR (MOTORCYCLE, AUTO, & HOUSING ONLY) -->
         <main id="trk-tab-simulator" class="hidden space-y-4">
           <div class="bpi-card p-5 space-y-4">
             <div class="flex items-start justify-between">
@@ -853,7 +1003,7 @@
                 <span id="sim-existing-status" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700">Active Loan</span>
               </div>
               <div class="flex justify-between text-slate-600">
-                <span>Active Loan (<span id="sim-existing-bal">₱144,000.00</span> bal.)</span>
+                <span>Active Motorcycle Loan (<span id="sim-existing-bal">₱144,000.00</span> bal.)</span>
                 <span id="sim-existing-loan-mo" class="font-bold text-[#232B2E]">-₱10,000.00 / mo</span>
               </div>
               <div class="flex justify-between text-slate-600">
@@ -866,13 +1016,13 @@
               </div>
             </div>
 
-            <!-- Loan Product Type & Term -->
+            <!-- Loan Product Type (Motorcycle, Auto, Housing ONLY) & Term -->
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1.5">Loan Facility &amp; Term</label>
               <select id="sim-loan-type" onchange="updateLoanSim(true)" class="w-full mb-2.5 rounded-xl border border-slate-200 bg-[#F7F8FA] px-3 py-2.5 text-xs font-bold text-[#232B2E]">
-                <option value="Personal Multipurpose Loan">Personal Multipurpose Loan</option>
-                <option value="Housing Loan">BPI Housing Loan</option>
+                <option value="Motorcycle Loan">BPI Motorcycle Loan</option>
                 <option value="Auto Loan">BPI Auto Loan</option>
+                <option value="Housing Loan">BPI Housing Loan</option>
               </select>
 
               <div class="grid grid-cols-3 gap-2">
@@ -924,8 +1074,12 @@
 
             <!-- Primary CTA: Proceed to Official BPI Loan Application Portal -->
             <button onclick="openBpiApplyModal()" id="btn-apply-bpi-loan" class="w-full bg-[#C83232] hover:bg-[#A62323] text-white font-bold text-xs py-3.5 px-4 rounded-xl shadow-sm active:scale-[0.99] transition-all flex items-center justify-center gap-2">
-              <span id="btn-apply-bpi-label">Proceed to BPI Housing Loan Application</span>
+              <span id="btn-apply-bpi-label">Proceed to BPI Motorcycle Loan Application</span>
               <span>&nearr;</span>
+            </button>
+
+            <button onclick="openSupportSheet('sales')" class="w-full py-2.5 px-4 rounded-xl bg-teal-50 border border-teal-200/80 text-[#148287] font-bold text-xs flex items-center justify-center gap-1.5">
+              <span>Message a BPI Loan Sales Specialist</span>
             </button>
 
             <label id="sim-sync-budget-wrap" class="flex items-center justify-between p-3 rounded-xl bg-[#F7F8FA] border border-slate-200/80 cursor-pointer">
@@ -937,7 +1091,7 @@
 
       </div>
 
-      <!-- STICKY BOTTOM TAB BAR (Hidden when opened from Products -> Housing/Auto Loan) -->
+      <!-- STICKY BOTTOM TAB BAR (Hidden when opened from Products -> Motorcycle/Auto/Housing Loan) -->
       <nav id="tracker-bottom-nav" class="shrink-0 bg-white border-t border-slate-200/80 px-3 pt-2.5 pb-3 flex justify-around items-center z-30 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
         <button onclick="switchTrackerTab('journey')" id="trk-nav-journey" class="trk-nav flex-1 flex flex-col items-center gap-1 text-[#C83232] font-bold text-[11px]">
           <span>Journey</span>
@@ -959,14 +1113,226 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- BPI ONLINE LOAN APPLICATION HANDOFF MODAL (FROM SIMULATOR)          -->
+    <!-- SHEET 1: UNIFIED BPI SUPPORT, COLLECTIONS OFFICER & LOAN SALES      -->
     <!-- =================================================================== -->
-    <div id="bpi-apply-modal" class="fixed inset-0 z-[65] hidden bg-black/50 backdrop-blur-[1px] flex items-end justify-center" style="max-width:430px;margin:0 auto;">
+    <div id="support-sheet-modal" class="fixed inset-0 z-[75] hidden bg-black/50 backdrop-blur-[1px] flex items-end justify-center" style="max-width:430px;margin:0 auto;">
+      <div class="w-full max-h-[88vh] overflow-y-auto bg-white rounded-t-3xl p-5 space-y-4 shadow-2xl border-t border-slate-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="inline-block px-2 py-0.5 rounded-md bg-teal-50 text-[#148287] text-[10px] font-bold">BPI Customer Care &amp; Advisory</span>
+            <h3 class="text-[18px] font-bold text-[#232B2E] mt-1">Contact BPI Support &amp; Loan Sales</h3>
+          </div>
+          <button onclick="closeSupportSheet()" class="w-8 h-8 rounded-full bg-[#E9ECEF] text-[#232B2E] font-bold text-sm flex items-center justify-center">&times;</button>
+        </div>
+
+        <!-- Designated Collections Officer Card -->
+        <div class="p-4 rounded-2xl bg-[#F7F8FA] border border-slate-200/90 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-full bg-[#2E3B3E] text-white font-bold text-sm flex items-center justify-center shrink-0">
+                PS
+              </div>
+              <div>
+                <span class="inline-block px-2 py-0.5 rounded-full bg-rose-50 text-[#C83232] text-[10px] font-bold">Designated Collections Officer</span>
+                <p class="text-sm font-bold text-[#232B2E] mt-0.5">Patricia Santos</p>
+                <p class="text-[11px] text-slate-500">Retail Loan Recovery &amp; Restructuring &bull; Ref: LN-2025-884120</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <a href="tel:+63288456900" class="py-2.5 px-3 rounded-xl bg-[#C83232] hover:bg-[#A62323] text-white font-bold text-xs flex items-center justify-center gap-1.5">
+              <span>Call Officer</span>
+            </a>
+            <button onclick="openReliefSheetFromSupport()" class="py-2.5 px-3 rounded-xl bg-[#2E3B3E] text-white font-bold text-xs flex items-center justify-center gap-1.5">
+              <span>Flexible Payment Plan</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Official BPI Hotlines & Email Channels -->
+        <div class="space-y-2">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Official BPI Contact Channels</p>
+
+          <a href="tel:+63288910000" class="bpi-card p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-rose-50 text-[#C83232] flex items-center justify-center font-bold text-xs">24/7</div>
+              <div>
+                <p class="text-xs font-bold text-[#232B2E]">BPI 24-Hour Contact Center</p>
+                <p class="text-[11px] text-slate-500">(+632) 889-10000 &bull; Toll-Free 1-800-188-89-100</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-[#148287]">Call &nearr;</span>
+          </a>
+
+          <a href="tel:+63288456900" class="bpi-card p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-xs">COL</div>
+              <div>
+                <p class="text-xs font-bold text-[#232B2E]">Past-Due &amp; Collections Specialist Line</p>
+                <p class="text-[11px] text-slate-500">(02) 8845-6900 / (02) 7754-6900</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-[#148287]">Call &nearr;</span>
+          </a>
+
+          <a href="mailto:retailloancollections@bpi.com.ph?cc=RetailLoanCare@bpi.com.ph&subject=Loan%20Account%20Assistance%20-%20LN-2025-884120" class="bpi-card p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center font-bold text-xs">@</div>
+              <div>
+                <p class="text-xs font-bold text-[#232B2E]">Email Retail Loan Collections &amp; Care</p>
+                <p class="text-[11px] text-slate-500">retailloancollections@bpi.com.ph</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-[#148287]">Email &nearr;</span>
+          </a>
+        </div>
+
+        <!-- Pre-Filled In-App Message Composer (Auto-attaches Active Loan or Simulated Loan Package) -->
+        <div class="p-4 rounded-2xl bg-[#F7F8FA] border border-slate-200/90 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label for="support-msg-topic" class="text-xs font-bold text-[#232B2E]">Send In-App Message to Specialist</label>
+            <select id="support-msg-topic" onchange="populateSupportMessage()" class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-[#148287]">
+              <option value="collections">Collections Officer (Active Loan)</option>
+              <option value="sales">Loan Sales (Simulated Package)</option>
+            </select>
+          </div>
+
+          <textarea id="support-msg-body" rows="3" class="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs text-[#232B2E] leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#148287]"></textarea>
+
+          <button onclick="sendSupportMessage()" class="w-full py-3 px-4 rounded-xl bg-[#148287] hover:opacity-95 text-white font-bold text-xs shadow-xs">
+            Send Priority Message to BPI Officer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- SHEET 2: IN-APP PAYMENT RELIEF & RESTRUCTURING REQUEST SHEET        -->
+    <!-- =================================================================== -->
+    <div id="relief-sheet-modal" class="fixed inset-0 z-[75] hidden bg-black/50 backdrop-blur-[1px] flex items-end justify-center" style="max-width:430px;margin:0 auto;">
+      <div class="w-full max-h-[88vh] overflow-y-auto bg-white rounded-t-3xl p-5 space-y-4 shadow-2xl border-t border-slate-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="inline-block px-2 py-0.5 rounded-md bg-rose-50 text-[#C83232] text-[10px] font-bold">BPI Loan Reprieve &amp; Restructuring</span>
+            <h3 class="text-[18px] font-bold text-[#232B2E] mt-1">Flexible Payment Options</h3>
+          </div>
+          <button onclick="closeReliefSheet()" class="w-8 h-8 rounded-full bg-[#E9ECEF] text-[#232B2E] font-bold text-sm flex items-center justify-center">&times;</button>
+        </div>
+
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Select a BPI-aligned relief arrangement below. Your request will be routed directly to <strong class="text-[#232B2E]">Patricia Santos (Designated Collections Officer)</strong> for credit review.
+        </p>
+
+        <!-- 3 Guided BPI Relief Schemes -->
+        <div class="space-y-2.5">
+          <!-- Option 1: Term Extension -->
+          <div onclick="selectReliefScheme('term')" id="relief-opt-term" class="relief-opt p-3.5 rounded-2xl border-2 border-[#C83232] bg-rose-50/40 cursor-pointer transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-[#232B2E]">1. Term Extension (Lower Periodic Amortization)</span>
+              <span class="px-2 py-0.5 rounded-full bg-[#C83232] text-white text-[10px] font-bold">Recommended</span>
+            </div>
+            <p class="text-[11px] text-slate-600 mt-1">Extends your remaining maturity by +12 cutoffs (6 months) to lower your semi-monthly installment from <strong>₱5,000.00</strong> to <strong id="relief-term-new-amt" class="text-emerald-700">₱3,512.20</strong>.</p>
+          </div>
+
+          <!-- Option 2: Pay-Break / Grace Period -->
+          <div onclick="selectReliefScheme('grace')" id="relief-opt-grace" class="relief-opt p-3.5 rounded-2xl border border-slate-200 bg-[#F7F8FA] cursor-pointer transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-[#232B2E]">2. Pay-Break / Grace Period (2 Cutoffs)</span>
+              <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">Short-Term Pause</span>
+            </div>
+            <p class="text-[11px] text-slate-600 mt-1">Temporarily suspends collection for <strong>2 semi-monthly cutoffs (30 days)</strong> and freezes additional +3% monthly penalty compounding while you recover cash flow.</p>
+          </div>
+
+          <!-- Option 3: Short-Term Interest-Only Payments -->
+          <div onclick="selectReliefScheme('interest')" id="relief-opt-interest" class="relief-opt p-3.5 rounded-2xl border border-slate-200 bg-[#F7F8FA] cursor-pointer transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-[#232B2E]">3. Short-Term Interest-Only Payments (6 Cutoffs)</span>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Cash-Flow Relief</span>
+            </div>
+            <p class="text-[11px] text-slate-600 mt-1">Pay only accrued interest of <strong class="text-emerald-700">₱1,440.00 / cutoff</strong> for the next 3 months (6 cutoffs) before resuming standard principal + interest amortization.</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="relief-reason" class="block text-xs font-bold text-slate-600 mb-1">Hardship / Cash-Flow Reason</label>
+          <select id="relief-reason" class="w-full rounded-xl border border-slate-200 bg-[#F7F8FA] px-3 py-2.5 text-xs font-bold text-[#232B2E]">
+            <option value="Temporary income reduction / payroll delay">Temporary income reduction / payroll delay</option>
+            <option value="Unexpected medical or family emergency">Unexpected medical or family emergency</option>
+            <option value="Business cash-flow seasonality">Business cash-flow seasonality</option>
+            <option value="Other financial hardship">Other financial hardship</option>
+          </select>
+        </div>
+
+        <button onclick="submitReliefRequest()" class="w-full py-3.5 px-4 rounded-xl bg-[#C83232] hover:bg-[#A62323] text-white font-bold text-xs shadow-xs">
+          Submit Restructuring Request to Collections Officer
+        </button>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- SHEET 3: INSTANT CATCH-UP & PARTIAL CURE PAYMENT FLOW               -->
+    <!-- =================================================================== -->
+    <div id="catchup-modal" class="fixed inset-0 z-[75] hidden bg-black/50 backdrop-blur-[1px] flex items-end justify-center" style="max-width:430px;margin:0 auto;">
+      <div class="w-full max-h-[88vh] overflow-y-auto bg-white rounded-t-3xl p-5 space-y-4 shadow-2xl border-t border-slate-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="inline-block px-2 py-0.5 rounded-md bg-rose-50 text-[#C83232] text-[10px] font-bold">Direct BPI Deposit-to-Loan Settlement</span>
+            <h3 class="text-[18px] font-bold text-[#232B2E] mt-1">Instant Catch-Up &amp; Partial Cure</h3>
+          </div>
+          <button onclick="closeCatchUpModal()" class="w-8 h-8 rounded-full bg-[#E9ECEF] text-[#232B2E] font-bold text-sm flex items-center justify-center">&times;</button>
+        </div>
+
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Settle your full overdue balance (including the accrued 3% monthly late charges) or make an immediate partial catch-up payment directly from your BPI account—no <em>Pay Bills</em> enrollment required.
+        </p>
+
+        <!-- Source BPI Deposit Account Selector -->
+        <div class="p-3.5 rounded-xl bg-[#F7F8FA] border border-slate-200/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <label for="catchup-source-acct" class="text-xs font-bold text-[#232B2E]">Pay From BPI Account</label>
+            <button onclick="addDemoFunds()" class="text-[11px] font-bold text-[#148287] underline">+ Top Up ₱10,000</button>
+          </div>
+          <select id="catchup-source-acct" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-[#232B2E]">
+            <option id="opt-payroll-acct" value="payroll">PAYROLL ACCOUNT (3729745668) — ₱0.00</option>
+            <option id="opt-savings-acct" value="savings">SAVINGS ACCOUNT (4019022138) — ₱0.00</option>
+          </select>
+        </div>
+
+        <!-- Full Cure vs Partial Catch-Up Selector -->
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="setCatchUpMode('full')" id="btn-catchup-full" class="p-3 rounded-xl border-2 border-[#C83232] bg-rose-50/50 text-left">
+            <span class="block text-[10px] font-bold uppercase text-[#C83232]">Full Past-Due Cure</span>
+            <span id="catchup-full-amt" class="block text-sm font-extrabold text-[#232B2E] mt-0.5">₱5,400.00</span>
+            <span id="catchup-full-sub" class="block text-[10px] text-slate-500">Clears accrued penalty</span>
+          </button>
+          <button onclick="setCatchUpMode('partial')" id="btn-catchup-partial" class="p-3 rounded-xl border border-slate-200 bg-[#F7F8FA] text-left">
+            <span class="block text-[10px] font-bold uppercase text-slate-500">Partial Catch-Up</span>
+            <span class="block text-sm font-extrabold text-[#232B2E] mt-0.5">Custom Amount</span>
+            <span class="block text-[10px] text-slate-500">Reduces overdue due</span>
+          </button>
+        </div>
+
+        <div id="catchup-custom-wrap" class="hidden">
+          <label for="catchup-custom-input" class="block text-xs font-bold text-slate-600 mb-1">Enter Partial Catch-Up Amount (PHP)</label>
+          <input id="catchup-custom-input" type="number" value="2500" min="500" step="100" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold text-[#232B2E]" />
+        </div>
+
+        <button onclick="executeCatchUpPayment()" class="w-full py-3.5 px-4 rounded-xl bg-[#C83232] hover:bg-[#A62323] text-white font-bold text-xs shadow-xs">
+          Confirm Instant Catch-Up Payment
+        </button>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- SHEET 4: BPI ONLINE LOAN APPLICATION HANDOFF MODAL (FROM SIMULATOR) -->
+    <!-- =================================================================== -->
+    <div id="bpi-apply-modal" class="fixed inset-0 z-[75] hidden bg-black/50 backdrop-blur-[1px] flex items-end justify-center" style="max-width:430px;margin:0 auto;">
       <div class="w-full bg-white rounded-t-3xl p-5 space-y-4 shadow-2xl border-t border-slate-200">
         <div class="flex items-start justify-between">
           <div>
             <span class="inline-block px-2 py-0.5 rounded-md bg-rose-50 text-[#C83232] text-[10px] font-bold">BPI Online Loan Application</span>
-            <h3 id="modal-loan-title" class="text-[17px] font-bold text-[#232B2E] mt-1">BPI Housing Loan Application</h3>
+            <h3 id="modal-loan-title" class="text-[17px] font-bold text-[#232B2E] mt-1">BPI Motorcycle Loan Application</h3>
           </div>
           <button onclick="closeBpiApplyModal()" class="w-8 h-8 rounded-full bg-[#E9ECEF] text-[#232B2E] font-bold text-sm flex items-center justify-center">&times;</button>
         </div>
@@ -1001,14 +1367,39 @@
     // ===================== BPI SHELL NAVIGATION & DECOYS =====================
     let balancesVisible = true;
     let toastTimer = null;
+    let payrollBalance = 0.00;
+    let savingsBalance = 0.00;
 
-    function triggerDecoy(featureName) {
+    function showToast(message) {
       const toast = document.getElementById('decoy-toast');
-      document.getElementById('decoy-toast-msg').textContent =
-        `"${featureName}" is a decoy. Tap Loans or Apply for a Housing/Auto Loan to launch the Loan Journey.`;
+      document.getElementById('decoy-toast-msg').textContent = message;
       toast.classList.remove('hidden');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.add('hidden'), 3000);
+      toastTimer = setTimeout(() => toast.classList.add('hidden'), 3600);
+    }
+
+    function triggerDecoy(featureName) {
+      showToast(`"${featureName}" is a decoy. Tap Loans, Help / Contact BPI, or Apply for a Motorcycle/Auto/Housing Loan.`);
+    }
+
+    function addDemoFunds() {
+      payrollBalance += 10000;
+      syncDepositBalances();
+      showToast('Added ₱10,000.00 demo funds to Payroll Account (3729745668).');
+    }
+
+    function syncDepositBalances() {
+      const pStr = Number(payrollBalance).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const sStr = Number(savingsBalance).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const pEl = document.getElementById('payroll-bal-display');
+      const sEl = document.getElementById('savings-bal-display');
+      pEl.dataset.real = pStr;
+      sEl.dataset.real = sStr;
+      pEl.textContent = balancesVisible ? pStr : '••••••';
+      sEl.textContent = balancesVisible ? sStr : '••••••';
+
+      document.getElementById('opt-payroll-acct').textContent = `PAYROLL ACCOUNT (3729745668) — ₱${pStr}`;
+      document.getElementById('opt-savings-acct').textContent = `SAVINGS ACCOUNT (4019022138) — ₱${sStr}`;
     }
 
     function toggleBalances() {
@@ -1061,10 +1452,11 @@
     const ORIGINAL_LOAN = 240000;
     const SEMI_INSTALLMENT = 5000;
     const INSURANCE_PREMIUM = 250;
-    const LATE_FEE_RATE = 0.03;
+    const MONTHLY_LATE_RATE = 0.03; // +3% every 30 days (1-30d = 3%, 31-60d = 6%, 61-90d = 9%)
     const ALLOWABLE_THRESHOLD_PCT = 50;
 
     let paidPrincipal = 96000;
+    let partialCureCredit = 0;
     let historyStack = [];
     let activeBoost = 0;
     let daysLate = 0;
@@ -1072,10 +1464,24 @@
     let hasCoBorrower = false;
     let trackerReturnTab = 'accounts';
     let isSimulatorOnlyMode = false;
+    let selectedReliefScheme = 'term';
+    let catchUpMode = 'full';
 
     const php = (n) => '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    function openLoanTracker(initialTab = 'journey', loanContext = 'Personal Multipurpose Loan', returnTab = 'accounts', simulatorOnly = false) {
+    // Compounding monthly penalty multiplier: 1-30 days = 1 month (3%), 31-60 days = 2 months (6%), etc.
+    function getLateFeeDetails(days) {
+      if (days <= 0) {
+        return { months: 0, ratePct: 0, rateDecimal: 0, feeAmount: 0 };
+      }
+      const months = Math.ceil(days / 30);
+      const ratePct = months * 3;
+      const rateDecimal = months * MONTHLY_LATE_RATE;
+      const feeAmount = SEMI_INSTALLMENT * rateDecimal;
+      return { months, ratePct, rateDecimal, feeAmount };
+    }
+
+    function openLoanTracker(initialTab = 'journey', loanContext = 'Motorcycle Loan', returnTab = 'accounts', simulatorOnly = false) {
       trackerReturnTab = returnTab;
       isSimulatorOnlyMode = simulatorOnly;
 
@@ -1083,7 +1489,6 @@
       document.getElementById('tracker-context-label').textContent = `BPI ${loanContext}`;
       document.getElementById('tracker-main-title').textContent = simulatorOnly ? `${loanContext} Simulator` : 'Loan Journey & Budget';
 
-      // Hide Journey/Budget/Details tabs and bottom tab bar when launched from Products -> Housing/Auto Loan
       document.getElementById('tracker-bottom-nav').classList.toggle('hidden', simulatorOnly);
       document.getElementById('hdr-existing-loan-box').classList.toggle('hidden', simulatorOnly);
       document.getElementById('sim-sync-budget-wrap').classList.toggle('hidden', simulatorOnly);
@@ -1099,10 +1504,165 @@
 
     function closeLoanTracker() {
       document.getElementById('loan-journey-overlay').classList.add('hidden');
-      switchBpiTab(trackerReturnTab); // Returns to Products if opened from Products, or Home (Accounts) if opened from Loans
+      switchBpiTab(trackerReturnTab);
       syncBpiLoanCardPreview();
     }
 
+    // ===================== SUPPORT, COLLECTIONS OFFICER & SALES SHEET =====================
+    function openSupportSheet(defaultTopic = 'general') {
+      const topicEl = document.getElementById('support-msg-topic');
+      topicEl.value = (defaultTopic === 'sales') ? 'sales' : 'collections';
+      populateSupportMessage();
+      document.getElementById('support-sheet-modal').classList.remove('hidden');
+    }
+
+    function closeSupportSheet() {
+      document.getElementById('support-sheet-modal').classList.add('hidden');
+    }
+
+    function openReliefSheetFromSupport() {
+      closeSupportSheet();
+      openReliefSheet();
+    }
+
+    function populateSupportMessage() {
+      const topic = document.getElementById('support-msg-topic').value;
+      const box = document.getElementById('support-msg-body');
+      const remaining = Math.max(0, ORIGINAL_LOAN - paidPrincipal);
+      const lateInfo = getLateFeeDetails(daysLate);
+
+      if (topic === 'sales') {
+        const loanType = document.getElementById('sim-loan-type').value;
+        const amt = Number(document.getElementById('sim-amt-slider').value) || 25000;
+        const coTxt = hasCoBorrower ? `with Co-Borrower (${document.getElementById('sim-coborrower-name').value || 'M. Reyes'})` : 'Solo Applicant';
+        box.value = `Hi BPI Loan Sales, I am Bea. I would like assistance applying for a ${loanType} of ${php(amt)} for ${simTermMonths} months (${coTxt}). Please contact me regarding pre-qualification and next steps.`;
+      } else {
+        const statusTxt = daysLate > 0 ? `currently ${daysLate} day(s) past due (+${lateInfo.ratePct}% late charge)` : 'currently active';
+        box.value = `Hi Patricia (Collections Officer), I am Bea (Motorcycle Loan Ref: LN-2025-884120, Outstanding: ${php(remaining)}, ${statusTxt}). I would like to discuss flexible payment or settlement options for my account.`;
+      }
+    }
+
+    function sendSupportMessage() {
+      const topic = document.getElementById('support-msg-topic').value;
+      closeSupportSheet();
+      showToast(
+        topic === 'sales'
+          ? 'Inquiry sent to BPI Loan Sales Specialist with your simulated package attached.'
+          : 'Message routed to Patricia Santos (Designated Collections Officer) for LN-2025-884120.'
+      );
+    }
+
+    // ===================== PAYMENT RELIEF & RESTRUCTURING SHEET =====================
+    function openReliefSheet() {
+      const remaining = Math.max(0, ORIGINAL_LOAN - paidPrincipal);
+      const cutoffsLeft = Math.max(1, Math.ceil(remaining / SEMI_INSTALLMENT));
+      const extendedCutoffs = cutoffsLeft + 12;
+      const loweredSemi = (remaining * 1.04) / extendedCutoffs;
+      document.getElementById('relief-term-new-amt').textContent = php(loweredSemi);
+      document.getElementById('relief-sheet-modal').classList.remove('hidden');
+    }
+
+    function closeReliefSheet() {
+      document.getElementById('relief-sheet-modal').classList.add('hidden');
+    }
+
+    function selectReliefScheme(scheme) {
+      selectedReliefScheme = scheme;
+      ['term', 'grace', 'interest'].forEach(s => {
+        const el = document.getElementById('relief-opt-' + s);
+        if (s === scheme) {
+          el.className = 'relief-opt p-3.5 rounded-2xl border-2 border-[#C83232] bg-rose-50/40 cursor-pointer transition-all';
+        } else {
+          el.className = 'relief-opt p-3.5 rounded-2xl border border-slate-200 bg-[#F7F8FA] cursor-pointer transition-all';
+        }
+      });
+    }
+
+    function submitReliefRequest() {
+      const labels = {
+        term: 'Term Extension (+12 Cutoffs)',
+        grace: 'Pay-Break / Grace Period (2 Cutoffs)',
+        interest: 'Short-Term Interest-Only (6 Cutoffs)'
+      };
+      const banner = document.getElementById('active-relief-banner');
+      document.getElementById('active-relief-summary').textContent = `${labels[selectedReliefScheme]} • Routed to Officer Patricia Santos`;
+      banner.classList.remove('hidden');
+      closeReliefSheet();
+      showToast(`Submitted ${labels[selectedReliefScheme]} request to Patricia Santos for review.`);
+    }
+
+    // ===================== INSTANT CATCH-UP & PARTIAL CURE FLOW =====================
+    function getCurrentDueBalance() {
+      const baseDue = SEMI_INSTALLMENT + INSURANCE_PREMIUM;
+      const lateInfo = getLateFeeDetails(daysLate);
+      return Math.max(0, (baseDue + lateInfo.feeAmount) - partialCureCredit);
+    }
+
+    function openCatchUpModal() {
+      syncDepositBalances();
+      const dueNow = getCurrentDueBalance();
+      const lateInfo = getLateFeeDetails(daysLate);
+      document.getElementById('catchup-full-amt').textContent = php(dueNow);
+      document.getElementById('catchup-full-sub').textContent = daysLate > 0 ? `Clears +${lateInfo.ratePct}% penalty` : 'Clears current cutoff';
+      setCatchUpMode('full');
+      document.getElementById('catchup-modal').classList.remove('hidden');
+    }
+
+    function closeCatchUpModal() {
+      document.getElementById('catchup-modal').classList.add('hidden');
+    }
+
+    function setCatchUpMode(mode) {
+      catchUpMode = mode;
+      const fullBtn = document.getElementById('btn-catchup-full');
+      const partBtn = document.getElementById('btn-catchup-partial');
+      if (mode === 'full') {
+        fullBtn.className = 'p-3 rounded-xl border-2 border-[#C83232] bg-rose-50/50 text-left';
+        partBtn.className = 'p-3 rounded-xl border border-slate-200 bg-[#F7F8FA] text-left';
+      } else {
+        partBtn.className = 'p-3 rounded-xl border-2 border-[#C83232] bg-rose-50/50 text-left';
+        fullBtn.className = 'p-3 rounded-xl border border-slate-200 bg-[#F7F8FA] text-left';
+      }
+      document.getElementById('catchup-custom-wrap').classList.toggle('hidden', mode !== 'partial');
+    }
+
+    function executeCatchUpPayment() {
+      const source = document.getElementById('catchup-source-acct').value;
+      const avail = source === 'payroll' ? payrollBalance : savingsBalance;
+      const dueNow = getCurrentDueBalance();
+      const payAmt = catchUpMode === 'full'
+        ? dueNow
+        : Math.min(dueNow, Math.max(100, Number(document.getElementById('catchup-custom-input').value) || 0));
+
+      if (avail < payAmt) {
+        showToast(`Insufficient funds in ${source === 'payroll' ? 'Payroll' : 'Savings'} Account. Tap "+ Top Up ₱10,000" to test settlement.`);
+        return;
+      }
+
+      if (source === 'payroll') payrollBalance -= payAmt;
+      else savingsBalance -= payAmt;
+      syncDepositBalances();
+
+      if (payAmt >= dueNow) {
+        historyStack.push(paidPrincipal);
+        paidPrincipal = Math.min(ORIGINAL_LOAN, paidPrincipal + SEMI_INSTALLMENT);
+        partialCureCredit = 0;
+        daysLate = 0;
+        document.getElementById('val-days-late').textContent = '0';
+        document.getElementById('btn-undo').classList.remove('hidden');
+        launchConfetti();
+        showToast(`Full catch-up payment of ${php(payAmt)} posted! Account is now up-to-date.`);
+      } else {
+        partialCureCredit += payAmt;
+        showToast(`Partial cure payment of ${php(payAmt)} credited. Remaining due: ${php(getCurrentDueBalance())}.`);
+      }
+
+      closeCatchUpModal();
+      renderJourney();
+      recalcBudget();
+    }
+
+    // ===================== APPLICATION MODAL & TRACKER LOGIC =====================
     function openBpiApplyModal() {
       const loanType = document.getElementById('sim-loan-type').value;
       const amt = Number(document.getElementById('sim-amt-slider').value) || 0;
@@ -1117,9 +1677,9 @@
       document.getElementById('modal-semi-val').textContent = php(semi);
 
       const urlMap = {
-        'Housing Loan': 'https://www.bpi.com.ph/personal/loans/housing-loan',
+        'Motorcycle Loan': 'https://www.bpi.com.ph/personal/loans/motorcycle-loan',
         'Auto Loan': 'https://www.bpi.com.ph/personal/loans/auto-loan',
-        'Personal Multipurpose Loan': 'https://www.bpi.com.ph/personal/loans/personal-loan'
+        'Housing Loan': 'https://www.bpi.com.ph/personal/loans/housing-loan'
       };
       document.getElementById('modal-external-link').href = urlMap[loanType] || 'https://www.bpi.com.ph/personal/loans';
       document.getElementById('bpi-apply-modal').classList.remove('hidden');
@@ -1139,12 +1699,13 @@
       document.getElementById('card-pct-paid').textContent = `${pctPaid}% Paid Off`;
 
       const isPastDue = daysLate > 0;
-      const dueAmt = isPastDue ? (SEMI_INSTALLMENT + INSURANCE_PREMIUM + SEMI_INSTALLMENT * LATE_FEE_RATE) : (SEMI_INSTALLMENT + INSURANCE_PREMIUM);
+      const lateInfo = getLateFeeDetails(daysLate);
+      const dueAmt = getCurrentDueBalance();
       document.getElementById('card-next-due-amt').textContent = `PHP ${Number(dueAmt).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
 
       const chip = document.getElementById('card-risk-chip');
       if (isPastDue) {
-        chip.textContent = `Past Due (${daysLate}d) +3%`;
+        chip.textContent = `Past Due (${daysLate}d) +${lateInfo.ratePct}%`;
         chip.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-[#C83232]';
       } else {
         chip.textContent = remaining === 0 ? 'Paid Off' : 'Up-to-date';
@@ -1224,6 +1785,7 @@
       historyStack.push(paidPrincipal);
       const payment = SEMI_INSTALLMENT + activeBoost;
       paidPrincipal = Math.min(ORIGINAL_LOAN, paidPrincipal + payment);
+      partialCureCredit = 0;
       activeBoost = 0;
       daysLate = 0;
       document.getElementById('val-days-late').textContent = '0';
@@ -1333,24 +1895,24 @@
       syncBpiLoanCardPreview();
     }
 
-    function changeDaysLate(delta) {
-      daysLate = Math.max(0, daysLate + delta);
+    function setDaysLate(val) {
+      daysLate = Math.max(0, val);
       document.getElementById('val-days-late').textContent = daysLate;
       recalcBudget();
     }
 
-    function togglePastDueDemo() {
-      daysLate = (daysLate === 0) ? 5 : 0;
-      document.getElementById('val-days-late').textContent = daysLate;
-      recalcBudget();
+    function changeDaysLate(delta) {
+      setDaysLate(daysLate + delta);
     }
 
     function updateLatePaymentDisplay() {
       const isPastDue = daysLate > 0 && !isSimulatorOnlyMode;
       const baseDue = SEMI_INSTALLMENT + INSURANCE_PREMIUM;
-      const lateCharge = SEMI_INSTALLMENT * LATE_FEE_RATE;
-      const totalAfterDueDate = baseDue + lateCharge;
-      const activePayable = isPastDue ? totalAfterDueDate : baseDue;
+      const activeLate = getLateFeeDetails(daysLate);
+      const displayRatePct = isPastDue ? activeLate.ratePct : 3;
+      const displayPenaltyAmt = isPastDue ? activeLate.feeAmount : (SEMI_INSTALLMENT * 0.03);
+      const totalAfterDueDate = Math.max(0, (baseDue + displayPenaltyAmt) - partialCureCredit);
+      const activePayable = getCurrentDueBalance();
 
       document.getElementById('det-days-late').textContent = daysLate;
       document.getElementById('det-total-due').textContent = php(baseDue);
@@ -1358,29 +1920,34 @@
       document.getElementById('det-current-payable').textContent = php(activePayable);
       document.getElementById('budget-after-due').textContent = php(totalAfterDueDate);
 
+      document.getElementById('budget-after-due-label').textContent = `Total Due After Due Date (+${displayRatePct}%)`;
+      document.getElementById('det-after-due-label').textContent = `Total Amount Due After Due Date (+${displayRatePct}%)`;
+      document.getElementById('det-late-rate-label').innerHTML = `${displayRatePct}% Late Payment Charge <span class="text-[10px] text-slate-400">(+3% per 30d)</span>`;
+
       const lateFeeEl = document.getElementById('det-late-fee');
       const afterDueBox = document.getElementById('det-after-due-box');
-      const toggleBtn = document.getElementById('btn-pastdue-toggle');
+      const afterDueNote = document.getElementById('det-after-due-note');
       const budgetTag = document.getElementById('budget-late-status-tag');
       const hdrStrip = document.getElementById('hdr-pastdue-strip');
 
       if (isPastDue) {
-        lateFeeEl.textContent = `+${php(lateCharge)} (Applied - ${daysLate}d late)`;
+        lateFeeEl.textContent = `+${php(activeLate.feeAmount)} (${activeLate.months} mo. @ 3%/mo = ${activeLate.ratePct}%)`;
         lateFeeEl.className = 'font-bold text-[#C83232]';
         afterDueBox.className = 'mt-2 p-3.5 rounded-xl bg-rose-50 border border-rose-200 space-y-1.5';
-        toggleBtn.textContent = 'Clear Past Due Status (Reset to 0 Days)';
-        toggleBtn.className = 'w-full py-2.5 px-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 font-bold text-xs';
-        budgetTag.textContent = `Past Due (${daysLate}d) • +${php(lateCharge)} Fee`;
+        afterDueNote.textContent = `At ${daysLate} day(s) past due (${activeLate.months} × 30-day cycle), a ${activeLate.ratePct}% late charge (${php(activeLate.feeAmount)}) applies to your ₱5,000.00 semi-monthly amortization.`;
+        budgetTag.textContent = `Past Due (${daysLate}d) • +${activeLate.ratePct}% (${php(activeLate.feeAmount)})`;
         budgetTag.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-[#C83232]';
+
         document.getElementById('hdr-late-days').textContent = daysLate;
+        document.getElementById('hdr-late-pct').textContent = activeLate.ratePct;
+        document.getElementById('hdr-late-months').textContent = activeLate.months;
         document.getElementById('hdr-after-due-amt').textContent = `PHP ${Number(totalAfterDueDate).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
         hdrStrip.classList.remove('hidden');
       } else {
-        lateFeeEl.textContent = `${php(0)} (${php(lateCharge)} if past due)`;
+        lateFeeEl.textContent = `${php(0)} (₱150.00 if 1–30d past due)`;
         lateFeeEl.className = 'font-bold text-slate-400';
         afterDueBox.className = 'mt-2 p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 space-y-1.5';
-        toggleBtn.textContent = 'Simulate Past Due (+5 Days Late)';
-        toggleBtn.className = 'w-full py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 text-[#C83232] font-bold text-xs';
+        afterDueNote.textContent = `Includes ₱150.00 (3% of ₱5,000.00 semi-monthly amortization for Days 1–30). Starting Day 31, an additional +3% (6% total = ₱300.00) applies every 30 days.`;
         budgetTag.textContent = 'On Time (₱0 Penalty)';
         budgetTag.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700';
         hdrStrip.classList.add('hidden');
@@ -1404,7 +1971,8 @@
 
       const remainingLoanBal = Math.max(0, ORIGINAL_LOAN - paidPrincipal);
       const isLoanActive = remainingLoanBal > 0;
-      const monthlyLatePenalty = (daysLate > 0 && isLoanActive) ? (SEMI_INSTALLMENT * 2 * LATE_FEE_RATE) : 0;
+      const lateInfo = getLateFeeDetails(daysLate);
+      const monthlyLatePenalty = (daysLate > 0 && isLoanActive) ? (SEMI_INSTALLMENT * 2 * lateInfo.rateDecimal) : 0;
       const activeLoanMonthly = isLoanActive ? ((SEMI_INSTALLMENT * 2) + monthlyLatePenalty) : 0;
 
       document.getElementById('lbl-semi-income').textContent = `Semi-Monthly: ${php(semiIncome)}`;
@@ -1419,7 +1987,7 @@
         statusChip.textContent = 'Paid Off';
         statusChip.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700';
       } else if (daysLate > 0) {
-        statusChip.textContent = 'Past Due (+3%)';
+        statusChip.textContent = `Past Due (+${lateInfo.ratePct}%)`;
         statusChip.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-[#C83232]';
       } else {
         statusChip.textContent = 'Active Loan';
@@ -1455,20 +2023,23 @@
       const banner = document.getElementById('risk-banner');
       const headerPill = document.getElementById('header-risk-pill');
       const detBadge = document.getElementById('det-status-badge');
+      const budgetReliefActions = document.getElementById('budget-relief-actions');
 
       if (daysLate > 0 || ratioPct > thresholdPct) {
-        banner.className = 'bpi-card p-4 border-l-4 border-l-[#C83232] bg-rose-50/40';
+        banner.className = 'bpi-card p-4 border-l-4 border-l-[#C83232] bg-rose-50/40 space-y-2.5';
+        budgetReliefActions.classList.remove('hidden');
         document.getElementById('risk-title').className = 'text-xs font-bold uppercase tracking-wider text-[#C83232]';
-        document.getElementById('risk-title').textContent = daysLate > 0 ? 'Past Due — 3% Late Charge Active' : 'High Delinquency Risk Flagged';
+        document.getElementById('risk-title').textContent = daysLate > 0 ? 'Past Due — Relief & Collections Available' : 'High Delinquency Risk — Relief Unlocked';
         document.getElementById('risk-desc').textContent = daysLate > 0
-          ? `Account is ${daysLate} day(s) past due. A 3% late payment charge (+₱150.00/cutoff; +₱300.00/mo) applies, bringing Total Amount Due After Due Date to ₱5,400.00.`
-          : `Combined obligation ratio (${ratioPct.toFixed(1)}%) exceeds the fixed ${thresholdPct}% allowable threshold.`;
+          ? `Account is ${daysLate} day(s) past due (+${lateInfo.ratePct}% charge active across ${lateInfo.months} month(s)). You may settle via Instant Catch-Up or request a flexible payment plan with Officer Patricia Santos.`
+          : `Combined obligation ratio (${ratioPct.toFixed(1)}%) exceeds the fixed ${thresholdPct}% allowable threshold. Flexible restructuring options are unlocked below.`;
         headerPill.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-[#C83232] border border-rose-200 flex items-center gap-1.5';
-        headerPill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-[#C83232] animate-ping"></span><span>' + (daysLate > 0 ? 'Past Due' : 'High Risk') + '</span>';
+        headerPill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-[#C83232] animate-ping"></span><span>' + (daysLate > 0 ? `Past Due +${lateInfo.ratePct}%` : 'High Risk') + '</span>';
         detBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-[#C83232]';
-        detBadge.textContent = daysLate > 0 ? `Past Due (${daysLate}d) +3%` : 'Over Limit';
+        detBadge.textContent = daysLate > 0 ? `Past Due (${daysLate}d) +${lateInfo.ratePct}%` : 'Over Limit';
       } else if (ratioPct >= thresholdPct - 5) {
-        banner.className = 'bpi-card p-4 border-l-4 border-l-amber-500 bg-amber-50/40';
+        banner.className = 'bpi-card p-4 border-l-4 border-l-amber-500 bg-amber-50/40 space-y-2.5';
+        budgetReliefActions.classList.add('hidden');
         document.getElementById('risk-title').className = 'text-xs font-bold uppercase tracking-wider text-amber-700';
         document.getElementById('risk-title').textContent = 'Moderate Risk — Near 50% Limit';
         document.getElementById('risk-desc').textContent = `Combined obligations (${ratioPct.toFixed(1)}%) are approaching the fixed ${thresholdPct}% cap.`;
@@ -1477,7 +2048,8 @@
         detBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700';
         detBadge.textContent = 'Up-to-date';
       } else {
-        banner.className = 'bpi-card p-4 border-l-4 border-l-emerald-600';
+        banner.className = 'bpi-card p-4 border-l-4 border-l-emerald-600 space-y-2.5';
+        budgetReliefActions.classList.add('hidden');
         document.getElementById('risk-title').className = 'text-xs font-bold uppercase tracking-wider text-emerald-700';
         document.getElementById('risk-title').textContent = 'Healthy Borrowing Capacity';
         document.getElementById('risk-desc').textContent = `Obligation ratio (${ratioPct.toFixed(1)}%) is safely below the fixed ${thresholdPct}% allowable threshold.`;
@@ -1553,6 +2125,7 @@
       draw();
     }
 
+    syncDepositBalances();
     renderJourney();
     recalcBudget();
   </script>
