@@ -1,0 +1,1475 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClearDebt — Smart Loan Repayment & Payoff Monitor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eefbf6',
+              100: '#d5f5e8',
+              200: '#aeebd4',
+              300: '#7adab9',
+              400: '#44c29a',
+              500: '#21a67f',
+              600: '#148666',
+              700: '#116b54',
+              800: '#105544',
+              900: '#0e4639',
+            },
+            slate: {
+              850: '#151e2e',
+              900: '#0f172a',
+            }
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-100 selection:text-brand-900">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-sm shadow-brand-500/20">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-lg font-bold tracking-tight text-slate-900">Clear<span class="text-brand-600">Debt</span></span>
+            <span class="hidden sm:inline-block ml-2 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200/60">Pro Tracker</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs (Desktop) -->
+        <nav class="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60" aria-label="Primary">
+          <button onclick="switchTab('overview')" id="tab-overview" class="nav-tab px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-white text-slate-900 shadow-sm">
+            Overview
+          </button>
+          <button onclick="switchTab('simulator')" id="tab-simulator" class="nav-tab px-4 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 hover:text-slate-900">
+            Payoff Simulator
+          </button>
+          <button onclick="switchTab('history')" id="tab-history" class="nav-tab px-4 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 hover:text-slate-900">
+            Payment History
+          </button>
+        </nav>
+
+        <!-- Primary Actions -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button onclick="openAddLoanModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-2xs">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span class="hidden sm:inline">Add Loan</span>
+          </button>
+          <button onclick="openLogPaymentModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 active:bg-brand-800 transition-all shadow-sm shadow-brand-600/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Log Payment</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Tab Bar -->
+      <div class="flex md:hidden items-center gap-1 pb-3 overflow-x-auto">
+        <button onclick="switchTab('overview')" id="mob-tab-overview" class="mob-nav-tab flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold bg-slate-900 text-white text-center">
+          Overview
+        </button>
+        <button onclick="switchTab('simulator')" id="mob-tab-simulator" class="mob-nav-tab flex-1 py-1.5 px-3 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 text-center">
+          Payoff Simulator
+        </button>
+        <button onclick="switchTab('history')" id="mob-tab-history" class="mob-nav-tab flex-1 py-1.5 px-3 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 text-center">
+          History
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast Notification Banner -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ==================== VIEW 1: OVERVIEW DASHBOARD ==================== -->
+    <section id="view-overview" class="space-y-6 sm:space-y-8">
+      
+      <!-- Top Hero KPI Summary Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+        
+        <!-- Total Debt & Overall Payoff Progress (7 cols) -->
+        <div class="md:col-span-7 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-brand-50/80 to-transparent rounded-bl-full pointer-events-none"></div>
+          
+          <div class="flex flex-wrap items-start justify-between gap-4 relative z-10">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Debt Remaining</p>
+              <div class="flex items-baseline gap-3 mt-1">
+                <h1 id="kpi-total-remaining" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">$0.00</h1>
+                <span id="kpi-paid-badge" class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200/60">
+                  0% Paid Off
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1.5">
+                Original Principal: <span id="kpi-original-total" class="font-semibold text-slate-700">$0.00</span> &bull; 
+                Principal Paid: <span id="kpi-principal-paid" class="font-semibold text-brand-600">$0.00</span>
+              </p>
+            </div>
+
+            <div class="bg-slate-50 rounded-xl px-3.5 py-2.5 border border-slate-200/70 text-right">
+              <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Est. Debt-Free Date</p>
+              <p id="kpi-debt-free-date" class="text-sm font-bold text-slate-800 mt-0.5">—</p>
+            </div>
+          </div>
+
+          <!-- Overall Payoff Progress Bar -->
+          <div class="mt-6 relative z-10">
+            <div class="flex justify-between items-center text-xs font-medium mb-2">
+              <span class="text-slate-600">Overall Repayment Progress</span>
+              <span id="kpi-progress-percent" class="font-bold text-brand-700">0.0%</span>
+            </div>
+            <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+              <div id="kpi-progress-bar" class="h-full bg-gradient-to-r from-brand-500 to-emerald-400 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 mt-2">
+              <span>Start</span>
+              <span>25%</span>
+              <span>50%</span>
+              <span>75%</span>
+              <span>Debt Free 🎉</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Obligation & Weighted APR (5 cols) -->
+        <div class="md:col-span-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
+          <!-- Monthly Payment Card -->
+          <div class="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-brand-500/10 pointer-events-none"></div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Monthly Payment Due</span>
+              <span class="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                Next: Dec 1
+              </span>
+            </div>
+            <div class="mt-3 flex items-baseline justify-between">
+              <div>
+                <p id="kpi-monthly-due" class="text-2xl sm:text-3xl font-bold tracking-tight">$0.00</p>
+                <p class="text-xs text-slate-400 mt-1">Across <span id="kpi-active-count" class="text-white font-medium">0</span> active accounts</p>
+              </div>
+              <button onclick="openLogPaymentModal()" class="px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-semibold text-xs transition-colors">
+                Pay Now &rarr;
+              </button>
+            </div>
+          </div>
+
+          <!-- Weighted APR & Interest Saved Mini Card -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Weighted Avg. APR</p>
+              <p id="kpi-weighted-apr" class="text-2xl font-bold text-slate-900 mt-0.5">0.00%</p>
+              <p class="text-xs text-slate-500 mt-0.5">Highest: <span id="kpi-highest-apr" class="font-medium text-rose-600">—</span></p>
+            </div>
+            <div class="h-12 w-px bg-slate-200"></div>
+            <div class="text-right">
+              <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Logged This Month</p>
+              <p id="kpi-logged-month" class="text-2xl font-bold text-brand-600 mt-0.5">$0.00</p>
+              <p class="text-xs text-slate-500 mt-0.5"><span id="kpi-payment-count">0</span> payments made</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Workspace Split: Active Loans (Left 8 cols) + Upcoming Schedule & Breakdown (Right 4 cols) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Active Loans Section -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Your Active Loans</h2>
+              <p class="text-xs text-slate-500">Click any loan card to inspect amortization or log a payment</p>
+            </div>
+            <!-- Sort Control -->
+            <div class="flex items-center gap-2">
+              <label for="loan-sort" class="text-xs font-medium text-slate-500">Sort by:</label>
+              <select id="loan-sort" onchange="renderDashboard()" class="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="due">Next Due Date</option>
+                <option value="avalanche">Highest APR (Avalanche)</option>
+                <option value="snowball">Lowest Balance (Snowball)</option>
+                <option value="balance-desc">Highest Balance</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Loan Cards Grid -->
+          <div id="loans-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+
+        <!-- Right Sidebar: Upcoming Schedule & Debt Mix Donut -->
+        <div class="lg:col-span-4 space-y-6">
+          
+          <!-- Upcoming Payment Schedule -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Upcoming Schedule</h3>
+                <p class="text-xs text-slate-500">Next 30 days auto-pay & manual bills</p>
+              </div>
+              <span class="text-xs font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg">Dec 2026</span>
+            </div>
+
+            <div id="upcoming-schedule-list" class="space-y-3">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Debt Composition Breakdown -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+            <h3 class="text-base font-bold text-slate-900 mb-1">Debt Composition</h3>
+            <p class="text-xs text-slate-500 mb-4">Share of total remaining principal</p>
+            
+            <div class="flex items-center gap-5">
+              <!-- SVG Donut Chart -->
+              <div class="relative w-28 h-28 shrink-0">
+                <svg id="debt-donut-svg" viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                  <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f1f5f9" stroke-width="3.8"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span class="text-[10px] font-semibold uppercase text-slate-400">Loans</span>
+                  <span id="donut-count" class="text-base font-extrabold text-slate-800">4</span>
+                </div>
+              </div>
+
+              <!-- Legend -->
+              <div id="debt-donut-legend" class="flex-1 space-y-2 text-xs">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: PAYOFF SIMULATOR & AMORTIZATION ==================== -->
+    <section id="view-simulator" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-brand-600">Interactive Payoff Accelerator</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Extra-Payment & Strategy Simulator</h2>
+            <p class="text-sm text-slate-500 mt-1">See how adding extra monthly payments reduces your interest and moves up your debt-free date.</p>
+          </div>
+
+          <!-- Strategy Selector -->
+          <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/70 self-start">
+            <button onclick="setSimStrategy('avalanche')" id="btn-strat-avalanche" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition-all">
+              Avalanche (Highest APR)
+            </button>
+            <button onclick="setSimStrategy('snowball')" id="btn-strat-snowball" class="px-3.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-all">
+              Snowball (Smallest Balance)
+            </button>
+          </div>
+        </div>
+
+        <!-- Simulator Controls & Impact Results -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-6">
+          
+          <!-- Left Controls (5 cols) -->
+          <div class="lg:col-span-5 space-y-6 bg-slate-50 p-5 rounded-2xl border border-slate-200/70">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label for="extra-payment-slider" class="text-sm font-semibold text-slate-800">Extra Monthly Payment</label>
+                <span id="extra-payment-display" class="text-lg font-extrabold text-brand-600 bg-white px-3 py-1 rounded-xl border border-brand-200 shadow-2xs">+$250/mo</span>
+              </div>
+              <input id="extra-payment-slider" type="range" min="0" max="2000" step="25" value="250" oninput="updateSimulator()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600" />
+              <div class="flex justify-between text-[11px] font-medium text-slate-400 mt-1.5">
+                <span>$0</span>
+                <span>$500</span>
+                <span>$1,000</span>
+                <span>$1,500</span>
+                <span>$2,000</span>
+              </div>
+            </div>
+
+            <!-- Quick Preset Chips -->
+            <div>
+              <p class="text-xs font-medium text-slate-500 mb-2">Quick Boost Presets:</p>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="setExtraPreset(0)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-brand-400 text-slate-700 transition-colors">Minimum Only</button>
+                <button onclick="setExtraPreset(100)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-brand-400 text-slate-700 transition-colors">+$100/mo</button>
+                <button onclick="setExtraPreset(300)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-brand-400 text-slate-700 transition-colors">+$300/mo</button>
+                <button onclick="setExtraPreset(600)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:border-brand-400 text-slate-700 transition-colors">+$600/mo</button>
+              </div>
+            </div>
+
+            <!-- Savings Summary Box -->
+            <div class="bg-white rounded-xl p-4 border border-slate-200/80 space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-slate-500">Total Monthly Outflow</span>
+                <span id="sim-total-monthly" class="text-sm font-bold text-slate-900">$0.00/mo</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-slate-500">Total Interest Saved</span>
+                <span id="sim-interest-saved" class="text-sm font-bold text-brand-600">$0.00</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-slate-500">Time Shaved Off</span>
+                <span id="sim-months-saved" class="text-sm font-bold text-indigo-600">0 months</span>
+              </div>
+              <div class="pt-2 border-t border-slate-100 flex justify-between items-center">
+                <span class="text-xs font-semibold text-slate-700">New Debt-Free Target</span>
+                <span id="sim-new-date" class="text-sm font-extrabold text-slate-900">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Visual Payoff Curve (7 cols) -->
+          <div class="lg:col-span-7 flex flex-col justify-between bg-white rounded-2xl p-5 border border-slate-200/80">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Balance Trajectory Comparison</h3>
+                <p class="text-xs text-slate-500">Standard minimum schedule vs. accelerated payoff plan</p>
+              </div>
+              <div class="flex items-center gap-4 text-xs font-medium">
+                <span class="flex items-center gap-1.5 text-slate-500">
+                  <span class="w-3 h-1 rounded-full bg-slate-300 inline-block"></span> Minimum Only
+                </span>
+                <span class="flex items-center gap-1.5 text-brand-700 font-semibold">
+                  <span class="w-3 h-1 rounded-full bg-brand-500 inline-block"></span> Accelerated Plan
+                </span>
+              </div>
+            </div>
+
+            <!-- Interactive SVG Trajectory Chart -->
+            <div class="w-full h-64 relative">
+              <svg id="payoff-chart-svg" class="w-full h-full overflow-visible" viewBox="0 0 600 220" preserveAspectRatio="none">
+                <!-- Grid lines & curves rendered dynamically -->
+              </svg>
+            </div>
+
+            <!-- Priority Target Callout -->
+            <div id="sim-priority-callout" class="mt-4 p-3.5 rounded-xl bg-brand-50/70 border border-brand-200/60 flex items-center justify-between gap-3 text-xs">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amortization Milestone Table -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+        <h3 class="text-base font-bold text-slate-900 mb-1">Yearly Payoff Schedule Breakdown</h3>
+        <p class="text-xs text-slate-500 mb-4">Projected annual principal reduction and interest costs under your selected simulation</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-4">Year</th>
+                <th class="py-3 px-4">Starting Balance</th>
+                <th class="py-3 px-4">Principal Paid</th>
+                <th class="py-3 px-4">Interest Paid</th>
+                <th class="py-3 px-4">Ending Balance</th>
+                <th class="py-3 px-4">Status</th>
+              </tr>
+            </thead>
+            <tbody id="amortization-table-body" class="divide-y divide-slate-100 text-sm">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: PAYMENT HISTORY LEDGER ==================== -->
+    <section id="view-history" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Repayment Ledger</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Complete audit log of scheduled and extra principal payments</p>
+          </div>
+          <button onclick="openLogPaymentModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 transition-colors">
+            + Record New Payment
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-4">Date</th>
+                <th class="py-3 px-4">Loan Account</th>
+                <th class="py-3 px-4">Type</th>
+                <th class="py-3 px-4">Amount Paid</th>
+                <th class="py-3 px-4">Remaining After</th>
+                <th class="py-3 px-4 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body" class="divide-y divide-slate-100 text-sm">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODAL 1: LOG A PAYMENT ==================== -->
+  <div id="modal-log-payment" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Log Loan Payment</h3>
+          <p class="text-xs text-slate-500">Balances and payoff progress update immediately</p>
+        </div>
+        <button onclick="closeModal('modal-log-payment')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="form-log-payment" onsubmit="handleLogPayment(event)" class="space-y-4 mt-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Select Loan Account</label>
+          <select id="pay-loan-select" onchange="onPayLoanChange()" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <!-- Options populated dynamically -->
+          </select>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/70 flex justify-between text-xs">
+          <span class="text-slate-500">Current Balance: <strong id="pay-modal-curr-bal" class="text-slate-800">$0.00</strong></span>
+          <span class="text-slate-500">Min. Due: <strong id="pay-modal-min-due" class="text-brand-700">$0.00</strong></span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Payment Amount ($)</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-2.5 text-slate-400 font-semibold">$</span>
+            <input id="pay-amount-input" type="number" step="0.01" min="1" required class="w-full rounded-xl border border-slate-300 pl-8 pr-4 py-2.5 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button type="button" onclick="fillPayAmount('min')" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700">Minimum Due</button>
+            <button type="button" onclick="fillPayAmount('extra100')" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700">Min + $100 Extra</button>
+            <button type="button" onclick="fillPayAmount('full')" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700">Pay Off Full</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Payment Date</label>
+            <input id="pay-date-input" type="date" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Payment Type</label>
+            <select id="pay-type-input" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="Scheduled Monthly">Scheduled Monthly</option>
+              <option value="Extra Principal">Extra Principal</option>
+              <option value="Lump Sum Payoff">Lump Sum Payoff</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-log-payment')" class="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm">Confirm Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: ADD NEW LOAN ==================== -->
+  <div id="modal-add-loan" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Add New Loan Account</h3>
+          <p class="text-xs text-slate-500">Track a mortgage, auto, student, or personal loan</p>
+        </div>
+        <button onclick="closeModal('modal-add-loan')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="form-add-loan" onsubmit="handleAddLoan(event)" class="space-y-4 mt-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Loan Name</label>
+            <input id="new-loan-name" type="text" placeholder="e.g. Home Solar Loan" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Category</label>
+            <select id="new-loan-category" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="Mortgage">Mortgage</option>
+              <option value="Auto">Auto Loan</option>
+              <option value="Student">Student Loan</option>
+              <option value="Personal">Personal Loan</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Lender / Servicer</label>
+          <input id="new-loan-lender" type="text" placeholder="e.g. SoFi, Chase, Nelnet" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Original Principal ($)</label>
+            <input id="new-loan-original" type="number" step="0.01" min="100" placeholder="15000" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Remaining Balance ($)</label>
+            <input id="new-loan-remaining" type="number" step="0.01" min="1" placeholder="12400" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">APR (%)</label>
+            <input id="new-loan-apr" type="number" step="0.01" min="0" max="50" placeholder="5.99" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Monthly Due ($)</label>
+            <input id="new-loan-monthly" type="number" step="0.01" min="1" placeholder="285" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Next Due Date</label>
+            <input id="new-loan-due" type="date" required class="w-full rounded-xl border border-slate-300 px-2.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('modal-add-loan')" class="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm">Add Loan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: LOAN DETAIL & AMORTIZATION DRAWER ==================== -->
+  <div id="modal-loan-detail" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200">
+      <div id="loan-detail-content">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== INITIAL APPLICATION STATE ====================
+    let loans = [
+      {
+        id: 'loan-1',
+        name: 'Primary Home Mortgage',
+        category: 'Mortgage',
+        lender: 'Wells Fargo Home',
+        originalAmount: 285000,
+        remainingBalance: 214650,
+        apr: 4.25,
+        monthlyPayment: 1402.00,
+        nextDueDate: '2026-12-01',
+        autopay: true,
+        color: '#21a67f'
+      },
+      {
+        id: 'loan-2',
+        name: 'Federal Student Loan',
+        category: 'Student',
+        lender: 'Nelnet Servicing',
+        originalAmount: 38000,
+        remainingBalance: 16420,
+        apr: 5.50,
+        monthlyPayment: 345.00,
+        nextDueDate: '2026-12-08',
+        autopay: true,
+        color: '#6366f1'
+      },
+      {
+        id: 'loan-3',
+        name: '2024 Hybrid SUV Auto',
+        category: 'Auto',
+        lender: 'Chase Auto Finance',
+        originalAmount: 32500,
+        remainingBalance: 14890,
+        apr: 4.90,
+        monthlyPayment: 518.50,
+        nextDueDate: '2026-12-15',
+        autopay: true,
+        color: '#0ea5e9'
+      },
+      {
+        id: 'loan-4',
+        name: 'Home Improvement Personal',
+        category: 'Personal',
+        lender: 'SoFi Lending',
+        originalAmount: 14000,
+        remainingBalance: 5480,
+        apr: 8.99,
+        monthlyPayment: 312.00,
+        nextDueDate: '2026-12-21',
+        autopay: false,
+        color: '#f59e0b'
+      }
+    ];
+
+    let paymentHistory = [
+      {
+        id: 'pay-104',
+        date: '2026-11-21',
+        loanId: 'loan-4',
+        loanName: 'Home Improvement Personal',
+        type: 'Extra Principal',
+        amount: 200.00,
+        remainingAfter: 5480.00
+      },
+      {
+        id: 'pay-103',
+        date: '2026-11-15',
+        loanId: 'loan-3',
+        loanName: '2024 Hybrid SUV Auto',
+        type: 'Scheduled Monthly',
+        amount: 518.50,
+        remainingAfter: 14890.00
+      },
+      {
+        id: 'pay-102',
+        date: '2026-11-08',
+        loanId: 'loan-2',
+        loanName: 'Federal Student Loan',
+        type: 'Scheduled Monthly',
+        amount: 345.00,
+        remainingAfter: 16420.00
+      },
+      {
+        id: 'pay-101',
+        date: '2026-11-01',
+        loanId: 'loan-1',
+        loanName: 'Primary Home Mortgage',
+        type: 'Scheduled Monthly',
+        amount: 1402.00,
+        remainingAfter: 214650.00
+      }
+    ];
+
+    let simStrategy = 'avalanche';
+
+    // ==================== FORMATTING HELPERS ====================
+    const fmtCurrency = (val) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(val);
+    };
+
+    const fmtCompactCurrency = (val) => {
+      if (val >= 1000) {
+        return '$' + (val / 1000).toFixed(1) + 'k';
+      }
+      return fmtCurrency(val);
+    };
+
+    const fmtDate = (isoStr) => {
+      if (!isoStr) return '—';
+      const [y, m, d] = isoStr.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    const getCategoryIcon = (category) => {
+      switch (category) {
+        case 'Mortgage':
+          return `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`;
+        case 'Auto':
+          return `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>`;
+        case 'Student':
+          return `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>`;
+        default:
+          return `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`;
+      }
+    };
+
+    // ==================== NAVIGATION TABS ====================
+    function switchTab(tabName) {
+      ['overview', 'simulator', 'history'].forEach((t) => {
+        const viewEl = document.getElementById(`view-${t}`);
+        const deskTab = document.getElementById(`tab-${t}`);
+        const mobTab = document.getElementById(`mob-tab-${t}`);
+
+        if (t === tabName) {
+          viewEl.classList.remove('hidden');
+          deskTab.className = 'nav-tab px-4 py-1.5 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-xs';
+          mobTab.className = 'mob-nav-tab flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold bg-slate-900 text-white text-center';
+        } else {
+          viewEl.classList.add('hidden');
+          deskTab.className = 'nav-tab px-4 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 hover:text-slate-900';
+          mobTab.className = 'mob-nav-tab flex-1 py-1.5 px-3 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 text-center';
+        }
+      });
+
+      if (tabName === 'simulator') updateSimulator();
+      if (tabName === 'history') renderHistory();
+    }
+
+    // ==================== DASHBOARD RENDERING ====================
+    function renderDashboard() {
+      const totalOriginal = loans.reduce((sum, l) => sum + l.originalAmount, 0);
+      const totalRemaining = loans.reduce((sum, l) => sum + l.remainingBalance, 0);
+      const totalPaid = Math.max(0, totalOriginal - totalRemaining);
+      const overallProgress = totalOriginal > 0 ? (totalPaid / totalOriginal) * 100 : 100;
+
+      const activeLoans = loans.filter((l) => l.remainingBalance > 0);
+      const totalMonthlyDue = activeLoans.reduce((sum, l) => sum + Math.min(l.monthlyPayment, l.remainingBalance), 0);
+
+      // Weighted APR calculation
+      const weightedAprSum = activeLoans.reduce((sum, l) => sum + l.remainingBalance * l.apr, 0);
+      const weightedApr = totalRemaining > 0 ? weightedAprSum / totalRemaining : 0;
+      const highestAprLoan = activeLoans.reduce((max, l) => (!max || l.apr > max.apr ? l : max), null);
+
+      // Current month payments logged (Nov 2026)
+      const novPayments = paymentHistory.filter((p) => p.date.startsWith('2026-11'));
+      const loggedMonthTotal = novPayments.reduce((sum, p) => sum + p.amount, 0);
+
+      // Baseline debt-free date from simulator with $0 extra
+      const baseSim = runPayoffSimulation(0, 'avalanche');
+
+      // Update Hero KPIs
+      document.getElementById('kpi-total-remaining').textContent = fmtCurrency(totalRemaining);
+      document.getElementById('kpi-original-total').textContent = fmtCurrency(totalOriginal);
+      document.getElementById('kpi-principal-paid').textContent = fmtCurrency(totalPaid);
+      document.getElementById('kpi-paid-badge').textContent = `${overallProgress.toFixed(1)}% Paid Off`;
+      document.getElementById('kpi-progress-percent').textContent = `${overallProgress.toFixed(1)}%`;
+      document.getElementById('kpi-progress-bar').style.width = `${Math.min(100, overallProgress)}%`;
+      document.getElementById('kpi-debt-free-date').textContent = baseSim.debtFreeLabel;
+
+      document.getElementById('kpi-monthly-due').textContent = fmtCurrency(totalMonthlyDue);
+      document.getElementById('kpi-active-count').textContent = activeLoans.length;
+      document.getElementById('kpi-weighted-apr').textContent = `${weightedApr.toFixed(2)}%`;
+      document.getElementById('kpi-highest-apr').textContent = highestAprLoan ? `${highestAprLoan.apr.toFixed(2)}% (${highestAprLoan.category})` : 'None';
+      document.getElementById('kpi-logged-month').textContent = fmtCurrency(loggedMonthTotal);
+      document.getElementById('kpi-payment-count').textContent = novPayments.length;
+
+      // Sort Loans
+      const sortMode = document.getElementById('loan-sort').value;
+      const sortedLoans = [...loans].sort((a, b) => {
+        if (a.remainingBalance === 0 && b.remainingBalance > 0) return 1;
+        if (b.remainingBalance === 0 && a.remainingBalance > 0) return -1;
+        if (sortMode === 'avalanche') return b.apr - a.apr;
+        if (sortMode === 'snowball') return a.remainingBalance - b.remainingBalance;
+        if (sortMode === 'balance-desc') return b.remainingBalance - a.remainingBalance;
+        return new Date(a.nextDueDate) - new Date(b.nextDueDate);
+      });
+
+      // Render Loan Cards
+      const grid = document.getElementById('loans-grid');
+      grid.innerHTML = sortedLoans.map((loan) => {
+        const paid = Math.max(0, loan.originalAmount - loan.remainingBalance);
+        const pct = loan.originalAmount > 0 ? (paid / loan.originalAmount) * 100 : 100;
+        const isPaidOff = loan.remainingBalance <= 0;
+
+        return `
+          <div onclick="openLoanDetailModal('${loan.id}')" class="group bg-white rounded-2xl p-5 border border-slate-200/80 hover:border-brand-400/80 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-2xs" style="background-color: ${loan.color}">
+                    ${getCategoryIcon(loan.category)}
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-slate-900 text-sm group-hover:text-brand-700 transition-colors">${loan.name}</h3>
+                    <p class="text-xs text-slate-500">${loan.lender}</p>
+                  </div>
+                </div>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${loan.apr >= 7 ? 'bg-rose-50 text-rose-700 border border-rose-200/60' : 'bg-slate-100 text-slate-700'}">
+                  ${loan.apr.toFixed(2)}% APR
+                </span>
+              </div>
+
+              <div class="mt-5 flex items-baseline justify-between">
+                <div>
+                  <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400">Remaining</p>
+                  <p class="text-2xl font-extrabold text-slate-900 mt-0.5">${fmtCurrency(loan.remainingBalance)}</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-[11px] font-medium text-slate-400">Monthly</p>
+                  <p class="text-sm font-bold text-slate-700">${isPaidOff ? '$0.00' : fmtCurrency(loan.monthlyPayment)}</p>
+                </div>
+              </div>
+
+              <!-- Individual Progress Bar -->
+              <div class="mt-4">
+                <div class="flex justify-between text-[11px] font-medium mb-1.5">
+                  <span class="text-slate-500">${pct.toFixed(0)}% paid off</span>
+                  <span class="text-slate-400">of ${fmtCompactCurrency(loan.originalAmount)}</span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-500" style="width: ${Math.min(100, pct)}%; background-color: ${loan.color}"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              ${
+                isPaidOff
+                  ? `<span class="font-bold text-emerald-600 flex items-center gap-1">✓ Paid in Full</span>`
+                  : `<span class="text-slate-500">Due <strong class="text-slate-700">${fmtDate(loan.nextDueDate)}</strong></span>`
+              }
+              <button type="button" onclick="event.stopPropagation(); openLogPaymentModal('${loan.id}')" ${isPaidOff ? 'disabled' : ''} class="font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                isPaidOff
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : 'bg-brand-50 text-brand-700 hover:bg-brand-600 hover:text-white'
+              }">
+                ${isPaidOff ? 'Settled' : 'Log Payment'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      renderUpcomingSchedule(activeLoans);
+      renderDebtDonut(activeLoans, totalRemaining);
+    }
+
+    function renderUpcomingSchedule(activeLoans) {
+      const container = document.getElementById('upcoming-schedule-list');
+      const sorted = [...activeLoans].sort((a, b) => new Date(a.nextDueDate) - new Date(b.nextDueDate));
+
+      if (sorted.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">All loans are paid off! 🎉</p>`;
+        return;
+      }
+
+      container.innerHTML = sorted.map((loan) => {
+        const [, , day] = loan.nextDueDate.split('-');
+        return `
+          <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-200/60 hover:bg-slate-100/70 transition-colors">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex flex-col items-center justify-center shrink-0">
+                <span class="text-[9px] font-bold uppercase text-slate-400 leading-none">Dec</span>
+                <span class="text-sm font-extrabold text-slate-800 leading-tight">${day}</span>
+              </div>
+              <div class="truncate">
+                <p class="text-xs font-bold text-slate-800 truncate">${loan.name}</p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="inline-block w-1.5 h-1.5 rounded-full ${loan.autopay ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                  <span class="text-[11px] text-slate-500">${loan.autopay ? 'Auto-Pay On' : 'Manual Bill'}</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <p class="text-xs font-extrabold text-slate-900">${fmtCurrency(Math.min(loan.monthlyPayment, loan.remainingBalance))}</p>
+              <button onclick="openLogPaymentModal('${loan.id}')" class="text-[11px] font-semibold text-brand-600 hover:underline">Pay early</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDebtDonut(activeLoans, totalRemaining) {
+      const svg = document.getElementById('debt-donut-svg');
+      const legend = document.getElementById('debt-donut-legend');
+      document.getElementById('donut-count').textContent = activeLoans.length;
+
+      let cumulativePercent = 0;
+      let circlesHtml = `<circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f1f5f9" stroke-width="3.8"></circle>`;
+
+      if (totalRemaining > 0) {
+        activeLoans.forEach((loan) => {
+          const pct = (loan.remainingBalance / totalRemaining) * 100;
+          const dashArray = `${pct} ${100 - pct}`;
+          const dashOffset = -cumulativePercent;
+          cumulativePercent += pct;
+
+          circlesHtml += `
+            <circle cx="18" cy="18" r="15.9155" fill="transparent"
+              stroke="${loan.color}" stroke-width="3.8"
+              stroke-dasharray="${dashArray}"
+              stroke-dashoffset="${dashOffset}"
+              class="transition-all duration-500"></circle>
+          `;
+        });
+      }
+
+      svg.innerHTML = circlesHtml;
+
+      legend.innerHTML = activeLoans.map((loan) => {
+        const share = totalRemaining > 0 ? ((loan.remainingBalance / totalRemaining) * 100).toFixed(1) : 0;
+        return `
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 truncate">
+              <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${loan.color}"></span>
+              <span class="text-slate-600 truncate">${loan.category}</span>
+            </div>
+            <span class="font-bold text-slate-800">${share}%</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==================== PAYOFF SIMULATOR & AMORTIZATION ENGINE ====================
+    function setSimStrategy(strategy) {
+      simStrategy = strategy;
+      const btnAv = document.getElementById('btn-strat-avalanche');
+      const btnSn = document.getElementById('btn-strat-snowball');
+
+      if (strategy === 'avalanche') {
+        btnAv.className = 'px-3.5 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition-all';
+        btnSn.className = 'px-3.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-all';
+      } else {
+        btnSn.className = 'px-3.5 py-2 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-xs transition-all';
+        btnAv.className = 'px-3.5 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-all';
+      }
+      updateSimulator();
+    }
+
+    function setExtraPreset(amount) {
+      document.getElementById('extra-payment-slider').value = amount;
+      updateSimulator();
+    }
+
+    function runPayoffSimulation(extraMonthly, strategy) {
+      let simLoans = loans
+        .filter((l) => l.remainingBalance > 0)
+        .map((l) => ({
+          id: l.id,
+          name: l.name,
+          balance: l.remainingBalance,
+          apr: l.apr,
+          minPayment: l.monthlyPayment
+        }));
+
+      if (simLoans.length === 0) {
+        return {
+          months: 0,
+          totalInterest: 0,
+          timeline: [0],
+          yearlyRows: [],
+          debtFreeLabel: 'Debt Free Now!'
+        };
+      }
+
+      let months = 0;
+      let totalInterest = 0;
+      const startBalance = simLoans.reduce((s, l) => s + l.balance, 0);
+      const timeline = [startBalance];
+      const yearlyRows = [];
+
+      let yearStartBal = startBalance;
+      let yearPrincipal = 0;
+      let yearInterest = 0;
+      const startYear = 2027;
+
+      const maxMonths = 360; // 30-year cap
+
+      while (simLoans.some((l) => l.balance > 0.01) && months < maxMonths) {
+        months++;
+        let availableExtra = extraMonthly;
+
+        // 1. Accrue monthly interest and pay minimums
+        simLoans.forEach((l) => {
+          if (l.balance <= 0) return;
+          const monthlyRate = l.apr / 100 / 12;
+          const interest = l.balance * monthlyRate;
+          totalInterest += interest;
+          yearInterest += interest;
+
+          let payment = Math.min(l.balance + interest, l.minPayment);
+          const principalPaid = Math.max(0, payment - interest);
+          l.balance = Math.max(0, l.balance + interest - payment);
+          yearPrincipal += principalPaid;
+
+          // Roll over unused minimum if loan paid off mid-month
+          if (payment < l.minPayment) {
+            availableExtra += l.minPayment - payment;
+          }
+        });
+
+        // 2. Sort active loans by strategy for extra payment allocation
+        const activeTargets = simLoans.filter((l) => l.balance > 0.01);
+        if (strategy === 'avalanche') {
+          activeTargets.sort((a, b) => b.apr - a.apr);
+        } else {
+          activeTargets.sort((a, b) => a.balance - b.balance);
+        }
+
+        // 3. Apply extra payment cascade
+        for (const target of activeTargets) {
+          if (availableExtra <= 0) break;
+          const extraApplied = Math.min(target.balance, availableExtra);
+          target.balance -= extraApplied;
+          yearPrincipal += extraApplied;
+          availableExtra -= extraApplied;
+        }
+
+        const currentTotalBal = simLoans.reduce((s, l) => s + l.balance, 0);
+        timeline.push(currentTotalBal);
+
+        if (months % 12 === 0 || currentTotalBal <= 0.01) {
+          const yearIndex = Math.ceil(months / 12) - 1;
+          yearlyRows.push({
+            year: startYear + yearIndex,
+            startBal: yearStartBal,
+            principal: yearPrincipal,
+            interest: yearInterest,
+            endBal: currentTotalBal,
+            paidOff: currentTotalBal <= 0.01
+          });
+          yearStartBal = currentTotalBal;
+          yearPrincipal = 0;
+          yearInterest = 0;
+        }
+      }
+
+      const targetDate = new Date(2026, 11 + months, 1);
+      const debtFreeLabel = targetDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+      return {
+        months,
+        totalInterest,
+        timeline,
+        yearlyRows,
+        debtFreeLabel
+      };
+    }
+
+    function updateSimulator() {
+      const extra = Number(document.getElementById('extra-payment-slider').value);
+      document.getElementById('extra-payment-display').textContent = `+$${extra.toLocaleString()}/mo`;
+
+      const baseline = runPayoffSimulation(0, simStrategy);
+      const accelerated = runPayoffSimulation(extra, simStrategy);
+
+      const baseMonthly = loans.filter((l) => l.remainingBalance > 0).reduce((s, l) => s + l.monthlyPayment, 0);
+      const interestSaved = Math.max(0, baseline.totalInterest - accelerated.totalInterest);
+      const monthsSaved = Math.max(0, baseline.months - accelerated.months);
+
+      document.getElementById('sim-total-monthly').textContent = `${fmtCurrency(baseMonthly + extra)}/mo`;
+      document.getElementById('sim-interest-saved').textContent = fmtCurrency(interestSaved);
+      document.getElementById('sim-months-saved').textContent = `${monthsSaved} month${monthsSaved === 1 ? '' : 's'}`;
+      document.getElementById('sim-new-date').textContent = accelerated.debtFreeLabel;
+
+      // Priority loan callout
+      const activeLoans = loans.filter((l) => l.remainingBalance > 0);
+      if (activeLoans.length > 0) {
+        const priorityLoan = [...activeLoans].sort((a, b) =>
+          simStrategy === 'avalanche' ? b.apr - a.apr : a.remainingBalance - b.remainingBalance
+        )[0];
+
+        document.getElementById('sim-priority-callout').innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-brand-600 shrink-0"></span>
+            <span class="text-slate-700">
+              <strong>${simStrategy === 'avalanche' ? 'Avalanche' : 'Snowball'} Target #1:</strong> 
+              Directing extra funds to <strong>${priorityLoan.name}</strong> (${priorityLoan.apr}% APR, ${fmtCurrency(priorityLoan.remainingBalance)} left)
+            </span>
+          </div>
+          <span class="font-bold text-brand-700 shrink-0">Priority #1</span>
+        `;
+      }
+
+      renderPayoffChart(baseline.timeline, accelerated.timeline);
+      renderAmortizationTable(accelerated.yearlyRows);
+    }
+
+    function renderPayoffChart(baseTimeline, accelTimeline) {
+      const svg = document.getElementById('payoff-chart-svg');
+      const width = 600;
+      const height = 220;
+      const padLeft = 52;
+      const padRight = 16;
+      const padTop = 16;
+      const padBottom = 28;
+      const plotW = width - padLeft - padRight;
+      const plotH = height - padTop - padBottom;
+
+      const maxBal = Math.max(...baseTimeline, 1);
+      const maxMonths = Math.max(baseTimeline.length - 1, 1);
+
+      const toPoints = (arr) =>
+        arr
+          .map((val, idx) => {
+            const x = padLeft + (idx / maxMonths) * plotW;
+            const y = padTop + plotH - (val / maxBal) * plotH;
+            return `${x.toFixed(1)},${y.toFixed(1)}`;
+          })
+          .join(' ');
+
+      const basePts = toPoints(baseTimeline);
+      const accelPts = toPoints(accelTimeline);
+
+      // Area under accelerated curve
+      const lastAccelX = padLeft + ((accelTimeline.length - 1) / maxMonths) * plotW;
+      const accelAreaPts = `${padLeft},${padTop + plotH} ${accelPts} ${lastAccelX.toFixed(1)},${padTop + plotH}`;
+
+      // Horizontal Grid Lines
+      let gridHtml = '';
+      for (let i = 0; i <= 4; i++) {
+        const y = padTop + (plotH / 4) * i;
+        const val = maxBal * (1 - i / 4);
+        gridHtml += `
+          <line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" stroke="#f1f5f9" stroke-width="1" />
+          <text x="${padLeft - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="#94a3b8" font-family="Inter, sans-serif">${fmtCompactCurrency(val)}</text>
+        `;
+      }
+
+      // X-Axis Year Labels
+      const totalYears = Math.ceil(maxMonths / 12);
+      const stepYears = Math.max(1, Math.ceil(totalYears / 6));
+      for (let yr = 0; yr <= totalYears; yr += stepYears) {
+        const mIdx = Math.min(yr * 12, maxMonths);
+        const x = padLeft + (mIdx / maxMonths) * plotW;
+        gridHtml += `
+          <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="10" fill="#94a3b8" font-family="Inter, sans-serif">${2027 + yr}</text>
+        `;
+      }
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="accelGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#21a67f" stop-opacity="0.22" />
+            <stop offset="100%" stop-color="#21a67f" stop-opacity="0.0" />
+          </linearGradient>
+        </defs>
+        ${gridHtml}
+        <polygon points="${accelAreaPts}" fill="url(#accelGrad)" />
+        <polyline fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-dasharray="5,5" points="${basePts}" />
+        <polyline fill="none" stroke="#21a67f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${accelPts}" />
+      `;
+    }
+
+    function renderAmortizationTable(rows) {
+      const tbody = document.getElementById('amortization-table-body');
+      tbody.innerHTML = rows.slice(0, 10).map((r) => `
+        <tr class="hover:bg-slate-50/80 transition-colors">
+          <td class="py-3 px-4 font-bold text-slate-800">${r.year}</td>
+          <td class="py-3 px-4 text-slate-600">${fmtCurrency(r.startBal)}</td>
+          <td class="py-3 px-4 font-semibold text-brand-700">${fmtCurrency(r.principal)}</td>
+          <td class="py-3 px-4 text-rose-600">${fmtCurrency(r.interest)}</td>
+          <td class="py-3 px-4 font-bold text-slate-900">${fmtCurrency(r.endBal)}</td>
+          <td class="py-3 px-4">
+            ${
+              r.paidOff
+                ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">Debt Free 🎉</span>`
+                : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">In Progress</span>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ==================== PAYMENT HISTORY LEDGER ====================
+    function renderHistory() {
+      const tbody = document.getElementById('history-table-body');
+      tbody.innerHTML = paymentHistory.map((item) => `
+        <tr class="hover:bg-slate-50/80 transition-colors">
+          <td class="py-3.5 px-4 text-slate-600 font-medium">${fmtDate(item.date)}</td>
+          <td class="py-3.5 px-4 font-bold text-slate-900">${item.loanName}</td>
+          <td class="py-3.5 px-4">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold ${
+              item.type.includes('Extra') || item.type.includes('Lump')
+                ? 'bg-brand-50 text-brand-700 border border-brand-200/60'
+                : 'bg-slate-100 text-slate-700'
+            }">
+              ${item.type}
+            </span>
+          </td>
+          <td class="py-3.5 px-4 font-extrabold text-brand-700">+${fmtCurrency(item.amount)}</td>
+          <td class="py-3.5 px-4 font-medium text-slate-700">${fmtCurrency(item.remainingAfter)}</td>
+          <td class="py-3.5 px-4 text-right">
+            <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+              ✓ Posted
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ==================== MODALS & INTERACTIVE ACTIONS ====================
+    function openModal(id) {
+      const el = document.getElementById(id);
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    }
+
+    function openLogPaymentModal(preselectedLoanId = null) {
+      const activeLoans = loans.filter((l) => l.remainingBalance > 0);
+      if (activeLoans.length === 0) {
+        showToast('All loans are already paid off!', 'success');
+        return;
+      }
+
+      const select = document.getElementById('pay-loan-select');
+      select.innerHTML = activeLoans
+        .map((l) => `<option value="${l.id}">${l.name} (${fmtCurrency(l.remainingBalance)} left)</option>`)
+        .join('');
+
+      if (preselectedLoanId && activeLoans.some((l) => l.id === preselectedLoanId)) {
+        select.value = preselectedLoanId;
+      }
+
+      document.getElementById('pay-date-input').value = '2026-11-26';
+      onPayLoanChange();
+      openModal('modal-log-payment');
+    }
+
+    function onPayLoanChange() {
+      const loanId = document.getElementById('pay-loan-select').value;
+      const loan = loans.find((l) => l.id === loanId);
+      if (!loan) return;
+
+      document.getElementById('pay-modal-curr-bal').textContent = fmtCurrency(loan.remainingBalance);
+      document.getElementById('pay-modal-min-due').textContent = fmtCurrency(Math.min(loan.monthlyPayment, loan.remainingBalance));
+      document.getElementById('pay-amount-input').value = Math.min(loan.monthlyPayment, loan.remainingBalance).toFixed(2);
+    }
+
+    function fillPayAmount(mode) {
+      const loanId = document.getElementById('pay-loan-select').value;
+      const loan = loans.find((l) => l.id === loanId);
+      if (!loan) return;
+
+      const input = document.getElementById('pay-amount-input');
+      const typeSelect = document.getElementById('pay-type-input');
+
+      if (mode === 'min') {
+        input.value = Math.min(loan.monthlyPayment, loan.remainingBalance).toFixed(2);
+        typeSelect.value = 'Scheduled Monthly';
+      } else if (mode === 'extra100') {
+        input.value = Math.min(loan.monthlyPayment + 100, loan.remainingBalance).toFixed(2);
+        typeSelect.value = 'Extra Principal';
+      } else if (mode === 'full') {
+        input.value = loan.remainingBalance.toFixed(2);
+        typeSelect.value = 'Lump Sum Payoff';
+      }
+    }
+
+    function handleLogPayment(event) {
+      event.preventDefault();
+      const loanId = document.getElementById('pay-loan-select').value;
+      const amount = parseFloat(document.getElementById('pay-amount-input').value);
+      const date = document.getElementById('pay-date-input').value;
+      const type = document.getElementById('pay-type-input').value;
+
+      const loan = loans.find((l) => l.id === loanId);
+      if (!loan || isNaN(amount) || amount <= 0) return;
+
+      const appliedAmount = Math.min(amount, loan.remainingBalance);
+      loan.remainingBalance = Math.max(0, Number((loan.remainingBalance - appliedAmount).toFixed(2)));
+
+      // Advance due date by 1 month if scheduled payment
+      if (type === 'Scheduled Monthly' && loan.remainingBalance > 0) {
+        const [y, m, d] = loan.nextDueDate.split('-').map(Number);
+        const nextDate = new Date(y, m, d);
+        loan.nextDueDate = nextDate.toISOString().split('T')[0];
+      }
+
+      paymentHistory.unshift({
+        id: 'pay-' + Date.now(),
+        date,
+        loanId: loan.id,
+        loanName: loan.name,
+        type,
+        amount: appliedAmount,
+        remainingAfter: loan.remainingBalance
+      });
+
+      closeModal('modal-log-payment');
+      renderDashboard();
+      renderHistory();
+      updateSimulator();
+
+      if (loan.remainingBalance === 0) {
+        showToast(`🎉 Congratulations! ${loan.name} is completely paid off!`, 'success');
+      } else {
+        showToast(`Logged ${fmtCurrency(appliedAmount)} payment to ${loan.name}`, 'success');
+      }
+    }
+
+    function openAddLoanModal() {
+      document.getElementById('form-add-loan').reset();
+      document.getElementById('new-loan-due').value = '2026-12-15';
+      openModal('modal-add-loan');
+    }
+
+    function handleAddLoan(event) {
+      event.preventDefault();
+      const name = document.getElementById('new-loan-name').value.trim();
+      const category = document.getElementById('new-loan-category').value;
+      const lender = document.getElementById('new-loan-lender').value.trim();
+      const originalAmount = parseFloat(document.getElementById('new-loan-original').value);
+      const remainingBalance = parseFloat(document.getElementById('new-loan-remaining').value);
+      const apr = parseFloat(document.getElementById('new-loan-apr').value);
+      const monthlyPayment = parseFloat(document.getElementById('new-loan-monthly').value);
+      const nextDueDate = document.getElementById('new-loan-due').value;
+
+      const palette = ['#21a67f', '#6366f1', '#0ea5e9', '#f59e0b', '#ec4899', '#8b5cf6'];
+      const color = palette[loans.length % palette.length];
+
+      loans.push({
+        id: 'loan-' + Date.now(),
+        name,
+        category,
+        lender,
+        originalAmount: Math.max(originalAmount, remainingBalance),
+        remainingBalance,
+        apr,
+        monthlyPayment,
+        nextDueDate,
+        autopay: false,
+        color
+      });
+
+      closeModal('modal-add-loan');
+      renderDashboard();
+      updateSimulator();
+      showToast(`Added "${name}" to your repayment tracker`, 'success');
+    }
+
+    function openLoanDetailModal(loanId) {
+      const loan = loans.find((l) => l.id === loanId);
+      if (!loan) return;
+
+      const paid = Math.max(0, loan.originalAmount - loan.remainingBalance);
+      const pct = loan.originalAmount > 0 ? (paid / loan.originalAmount) * 100 : 100;
+      const monthlyInterest = (loan.remainingBalance * (loan.apr / 100)) / 12;
+      const estPrincipalShare = Math.max(0, loan.monthlyPayment - monthlyInterest);
+
+      const content = document.getElementById('loan-detail-content');
+      content.innerHTML = `
+        <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-white" style="background-color: ${loan.color}">
+              ${getCategoryIcon(loan.category)}
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">${loan.category} Loan</span>
+              <h3 class="text-lg font-bold text-slate-900">${loan.name}</h3>
+              <p class="text-xs text-slate-500">Serviced by ${loan.lender}</p>
+            </div>
+          </div>
+          <button onclick="closeModal('modal-loan-detail')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="mt-5 grid grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70">
+            <p class="text-[11px] font-medium text-slate-400 uppercase">Remaining Balance</p>
+            <p class="text-xl font-extrabold text-slate-900 mt-0.5">${fmtCurrency(loan.remainingBalance)}</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70">
+            <p class="text-[11px] font-medium text-slate-400 uppercase">Interest Rate (APR)</p>
+            <p class="text-xl font-extrabold text-slate-900 mt-0.5">${loan.apr.toFixed(2)}%</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="flex justify-between text-xs font-semibold mb-1.5">
+            <span class="text-slate-600">Principal Paid: ${fmtCurrency(paid)}</span>
+            <span class="text-brand-700">${pct.toFixed(1)}%</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full rounded-full" style="width: ${Math.min(100, pct)}%; background-color: ${loan.color}"></div>
+          </div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-2.5 text-xs">
+          <p class="font-bold text-slate-800">Next Payment Breakdown (${fmtDate(loan.nextDueDate)})</p>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Scheduled Monthly Payment</span>
+            <span class="font-bold text-slate-900">${fmtCurrency(loan.monthlyPayment)}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Est. Principal Reduction</span>
+            <span class="font-semibold text-brand-700">${fmtCurrency(estPrincipalShare)}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Est. Monthly Interest</span>
+            <span class="font-semibold text-rose-600">${fmtCurrency(monthlyInterest)}</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-between gap-3">
+          <button onclick="toggleAutopay('${loan.id}')" class="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 hover:bg-slate-50 text-slate-700">
+            Auto-Pay: ${loan.autopay ? 'ON ✓' : 'OFF'}
+          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="closeModal('modal-loan-detail')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Close</button>
+            ${
+              loan.remainingBalance > 0
+                ? `<button onclick="closeModal('modal-loan-detail'); openLogPaymentModal('${loan.id}')" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700">Log Payment</button>`
+                : ''
+            }
+          </div>
+        </div>
+      `;
+
+      openModal('modal-loan-detail');
+    }
+
+    function toggleAutopay(loanId) {
+      const loan = loans.find((l) => l.id === loanId);
+      if (!loan) return;
+      loan.autopay = !loan.autopay;
+      openLoanDetailModal(loanId);
+      renderDashboard();
+      showToast(`Auto-Pay ${loan.autopay ? 'enabled' : 'disabled'} for ${loan.name}`, 'success');
+    }
+
+    // ==================== TOAST NOTIFICATION ====================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg text-xs font-semibold text-white transition-all transform translate-y-0 ${
+        type === 'success' ? 'bg-slate-900 border border-slate-700' : 'bg-rose-600'
+      }`;
+      toast.innerHTML = `
+        <span class="w-2 h-2 rounded-full bg-brand-400"></span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    // ==================== INITIALIZE APP ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderDashboard();
+      renderHistory();
+      updateSimulator();
+    });
+  </script>
+</body>
+</html>
